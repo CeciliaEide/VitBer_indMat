@@ -71,24 +71,26 @@ class Softmax(Layer):
     Q = np.sum(P,axis=axis,keepdims=True)
     """
 
-    def __init__(self,your_arguments_here):
+    def __init__(self,x): #sjekk x, viser her til matrisen, hva gjør denne?
         """
         Your code here
         """
+        self.x = x
         return
 
     
     def forward(self,x):
-        """
-        Your code here
-        """
-        return
+        P = np.exp(x - x.max(axis=axis,keepdims=True))
+        Q = np.sum(P,axis=axis,keepdims=True)
+        eps = 10**-8 #legges til for å unngå divisjon med null
+
+        x_l = np.multiply(P,(Q+eps)**(-1))
+
+        return x_l
 
 
     def backward(self,grad):
-        """
-        Your code here
-        """
+        
         return
 
 
