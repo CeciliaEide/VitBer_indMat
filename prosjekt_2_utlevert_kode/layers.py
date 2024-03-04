@@ -63,6 +63,13 @@ class Attention(Layer):
 
 
 class Softmax(Layer):
+    """
+    For å unngå numerisk ustabilitet (overflow i exp), kan du bruke følgende triks
+    når du beregner P, Q i softmax over aksen axis:
+
+    P = np.exp(x - x.max(axis=axis,keepdims=True))
+    Q = np.sum(P,axis=axis,keepdims=True)
+    """
 
     def __init__(self,your_arguments_here):
         """
