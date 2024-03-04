@@ -89,12 +89,12 @@ class Softmax(Layer):
         return x_l
 
 
-    def backward(self,grad,x): #midlertidig
+    def backward(self,grad): #midlertidig
         P = np.exp(x - x.max(axis=axis,keepdims=True))
         S = np.multiply(P,((np.multiply(Q,Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
         dLdZ = np.multiply(grad,forward(x))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
-        return
+        return dLdZ
 
 
 
@@ -109,19 +109,19 @@ class CrossEntropy(Layer):
         
 
     def forward(self,x):
-        """
-        Your code here
-        """
+        Y = onehot(y) #lag onehot
+        one = np.ones(m)
+        p = one*np.multiply(Y_hat,Y) #husk å ta inn Y_hat og Y (den klippede z'en og treningsdataen)
+        q = -np.log(p) #naturlig eller tier?
 
-        
-        return
+        L = (1/n)*((q).sum(axis=0))
+
+        return L
 
 
     def backward(self):
-        """
-        Your code here
-        """
-        return
+        dLdY = (1/n)*(np.multiply(Y,Y_hat+eps))
+        return dLdY
     
 
 
