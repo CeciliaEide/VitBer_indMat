@@ -53,7 +53,7 @@ class Attention(Layer):
         D = np.zeros((n,n))
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
-        
+
         A = Softmax.forward((np.transpose(z)@np.transpose(W_Q)@W_K@x)+D) #definer parameterene. Hvor? Definer ogs z
         z_l = z + np.transpose(W_O)@W_V@z@A
         return z_l
@@ -127,11 +127,15 @@ class CrossEntropy(Layer):
 
 
     def backward(self):
-         eps = 10**-8
+        eps = 10**-8
         dLdY = (1/n)*(np.multiply(Y,Y_hat+eps))
         return dLdY
     
 
+l1 = LinearLayer(t,r)
+
+
+layers = [l1,l2,....,l_U,l_S]
 
 class LinearLayer(Layer):
 
