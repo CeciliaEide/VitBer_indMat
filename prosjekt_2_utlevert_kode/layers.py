@@ -47,17 +47,15 @@ class Attention(Layer):
 
         
 
-    def forward(self,x):
-        """
-        Your code here
-        """
+    def forward(self,x): #hva er x her?
+        D = 0 # Definer D her
+        A = softmax((np.transpose(z)@np.transpose(W_Q)@W_K@x)+D) #definer parameterene. Hvor? Definer ogs z
+        z_l = z + np.transpose(W_O)@W_V@z@A
         return
 
 
     def backward(self,grad):
-        """
-        Your code here
-        """
+        
         return
     
 
@@ -80,20 +78,20 @@ class Softmax(Layer):
 
     
     def forward(self,x):
-        P = np.exp(x - x.max(axis=axis,keepdims=True))
+        P = np.exp(z - z.max(axis=axis,keepdims=True))
         Q = np.sum(P,axis=axis,keepdims=True)
         eps = 10**-8 #legges til for å unngå divisjon med null
 
-        x_l = np.multiply(P,(Q+eps)**(-1))
+        z_l = np.multiply(P,(Q+eps)**(-1))
 
-        return x_l
+        return z_l
 
 
     def backward(self,grad): #midlertidig
         P = np.exp(x - x.max(axis=axis,keepdims=True))
         S = np.multiply(P,((np.multiply(Q,Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
-        dLdZ = np.multiply(grad,forward(x))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
+        dLdZ = np.multiply(grad,forward(z))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
         return dLdZ
 
 
