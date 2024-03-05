@@ -47,9 +47,14 @@ class Attention(Layer):
 
         
 
-    def forward(self,x): #hva er x her? 
-        D = 0 # Definer D her
-        A = softmax.forward((np.transpose(z)@np.transpose(W_Q)@W_K@x)+D) #definer parameterene. Hvor? Definer ogs z
+    def forward(self,z):
+
+        #definisjon av D, D er en nxn matrise
+        D = np.zeros((n,n))
+        i1,i2 = np.tril_indices(n,-1)
+        D[i1,i2] -= np.inf
+        
+        A = Softmax.forward((np.transpose(z)@np.transpose(W_Q)@W_K@x)+D) #definer parameterene. Hvor? Definer ogs z
         z_l = z + np.transpose(W_O)@W_V@z@A
         return z_l
 
@@ -72,15 +77,15 @@ class Softmax(Layer):
     Q = np.sum(P,axis=axis,keepdims=True)
     """
 
-    def __init__(self,x): #sjekk x, viser her til matrisen, hva gjør denne?
+    def __init__(self,z): #sjekk x, viser her til matrisen, hva gjør denne?
         """
         Your code here
         """
-        self.x = x
+        self.z = z
         return
 
     
-    def forward(self,x):
+    def forward(self,z):
         P = np.exp(z - z.max(axis=axis,keepdims=True))
         Q = np.sum(P,axis=axis,keepdims=True)
         eps = 10**-8 #legges til for å unngå divisjon med null
@@ -91,11 +96,11 @@ class Softmax(Layer):
 
 
     def backward(self,grad): #midlertidig
-        P = np.exp(x - x.max(axis=axis,keepdims=True))
+        P = np.exp(z - z.max(axis=axis,keepdims=True))
         S = np.multiply(P,((np.multiply(Q,Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
 
-        dLdZ = np.multiply(grad,forward(x))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
+        dLdZ = np.multiply(grad,forward(z))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
         return dLdZ
 
 
@@ -110,10 +115,10 @@ class CrossEntropy(Layer):
 
         
 
-    def forward(self,x):
-        Y = onehot(y) #lag onehot
+    def forward(self,y,Y_hat):
+        Y = onehot(y)
         one = np.ones(m)
-        p = one*np.multiply(Y_hat,Y) #husk å ta inn Y_hat og Y (den klippede z'en og treningsdataen)
+        p = one*np.multiply(Y_hat,Y) 
         q = -np.log(p) #naturlig eller tier?
 
         L = (1/n)*((q).sum(axis=0))
@@ -122,6 +127,7 @@ class CrossEntropy(Layer):
 
 
     def backward(self):
+         eps = 10**-8
         dLdY = (1/n)*(np.multiply(Y,Y_hat+eps))
         return dLdY
     
