@@ -39,8 +39,3 @@ class NeuralNetwork():
             if isinstance(layer,LinearLayer,EmbedPosition,FeedForward,Attention):
                 layer.step_gd(alpha)
         return
-    
-<<<<<<< HEAD
-=======
-    
->>>>>>> f14938d23d15e97ba0fe963e186ff5fc921596d7
