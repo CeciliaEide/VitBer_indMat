@@ -43,6 +43,8 @@ class Attention(Layer):
         """
         Your code here
         """
+        A = Softmax.forward(...)
+        z_l = z + LinearLayer.forward(O)
         return
 
         
@@ -93,7 +95,7 @@ class Softmax(Layer):
         P = np.exp(x - x.max(axis=axis,keepdims=True))
         S = np.multiply(P,((np.multiply(Q,Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
-        dLdZ = np.multiply(grad,forward(x))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
+        dLdZ = np.multiply(grad,forward(self,x))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
         return dLdZ
 
 
