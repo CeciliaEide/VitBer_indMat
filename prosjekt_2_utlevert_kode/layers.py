@@ -46,7 +46,9 @@ class Layer:
         V_0 = np.zeros([rows, columns])
         M_0 = np.zeros([rows, columns])
 
-        G_j = 
+        for j in range()
+            G_j = dLdW_j #legg inn riktig parameterliste med dens deriverte her
+            M_j = b_1*
 
 
 class Attention(Layer):
