@@ -43,22 +43,23 @@ class Attention(Layer):
         """
         Your code here
         """
-        A = Softmax.forward(...)
-        z_l = z + LinearLayer.forward(O)
         return
 
         
 
-    def forward(self,x): #hva er x her?
+    def forward(self,x): #hva er x her? 
         D = 0 # Definer D her
-        A = softmax((np.transpose(z)@np.transpose(W_Q)@W_K@x)+D) #definer parameterene. Hvor? Definer ogs z
+        A = softmax.forward((np.transpose(z)@np.transpose(W_Q)@W_K@x)+D) #definer parameterene. Hvor? Definer ogs z
         z_l = z + np.transpose(W_O)@W_V@z@A
-        return
+        return z_l
 
 
     def backward(self,grad):
-        
-        return
+        gOV = np.transpose(W_v) @ W_o @ grad
+        g_s = Softmax.backward(np.transpose(z) * gOV)
+        dLdz = grad + gOV@np.transpose(A) + np.transpose(W_k)@W_q@z@g_s
+        return dLdZ
+    
     
 
 
@@ -94,10 +95,7 @@ class Softmax(Layer):
         S = np.multiply(P,((np.multiply(Q,Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
 <<<<<<< HEAD
-        dLdZ = np.multiply(grad,forward(self,x))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
-=======
-        dLdZ = np.multiply(grad,forward(z))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
->>>>>>> 26a8eaf7a3d80b7fda4cdb8154b5bb1fc9d44455
+        dLdZ = np.multiply(grad,forward(x))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
         return dLdZ
 
 
