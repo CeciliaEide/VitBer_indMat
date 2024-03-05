@@ -34,7 +34,19 @@ class Layer:
         for param in self.params:
             self.params[param]['w'] -= alpha*self.params[param]['d']
 
+    def adam(self, L, W_i, alpha, ):
+        b_1 = 0.9
+        b_2 = 0.999
+        alpha = 0.01
+        eps = 10**-8
+        
+        #Make V_0 and M_0 in same dimensions as W_i
+        dimensions = W_i.shape
+        rows, columns = dimensions
+        V_0 = np.zeros([rows, columns])
+        M_0 = np.zeros([rows, columns])
 
+        G_j = 
 
 
 class Attention(Layer):
