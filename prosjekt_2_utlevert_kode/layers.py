@@ -45,10 +45,11 @@ class Layer:
         rows, columns = dimensions
         V_0 = np.zeros([rows, columns])
         M_0 = np.zeros([rows, columns])
+        #tenk på hvordan lagre M_j og V_j i dictionary på samme måte som G_j...
 
         W_j = param #setting init value for j-iteration
 
-        for j in range()
+        for j in range(1,n_iter) #hva er n_iter?
             G_j = dLdW_j #legg inn riktig parameterliste med dens deriverte her
             M_j = b_1*M_j + (1-b_1)*G_j
             V_j = b_2*V_j + (1-b_2)*np.multiply(G_j,G_j)
