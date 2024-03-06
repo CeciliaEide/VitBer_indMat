@@ -139,6 +139,7 @@ class CrossEntropy(Layer):
         
 
     def forward(self,y,Y_hat):
+       #en del her burde flyttes til init funk kanskje?
         Y = onehot(y)
         one = np.ones(m)
         p = one*np.multiply(Y_hat,Y) 
