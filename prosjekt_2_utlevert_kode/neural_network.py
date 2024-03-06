@@ -42,6 +42,7 @@ class NeuralNetwork():
     
     def adam(self, alpha):
         for layer in self.layers:
+            #Check if layer is an instance of a class that has parameters
             if isinstance(layer, LinearLayer, EmbedPosition, FeedForward, Attention):
                 layer.adam(alpha)
         return
