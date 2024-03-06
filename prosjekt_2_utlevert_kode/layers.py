@@ -66,6 +66,13 @@ class Attention(Layer):
         """
         Your code here
         """
+        ##lage nye dictionaries for parameterene som ikke er en del av linear layers 
+        #Initialize the parameter dictionary for weight with key "Wp"
+        self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None},
+                       "W_q":{'w':np.random.randn(k,d)*init_scale,'d':None},
+                       "W_o":{'w':np.random.randn(k,d)*init_scale,'d':None},
+                       "W_v":{'w':np.random.randn(k,d)*init_scale,'d':None}}
+
         return
 
         
@@ -77,8 +84,8 @@ class Attention(Layer):
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-        A = Softmax.forward((np.transpose(z)@np.transpose(W_Q)@W_K@x)+D) #definer parameterene. Hvor? Definer ogs z
-        z_l = z + np.transpose(W_O)@W_V@z@A
+        A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_k']['w'])@(self.params['W_q']['w'])@z)+D) #definer parameterene. Hvor? Definer ogs z
+        z_l = z + np.transpose(W_o)@W_v@z@A
         return z_l
 
 
@@ -87,6 +94,16 @@ class Attention(Layer):
         g_s = Softmax.backward(np.transpose(z) * gOV)
         dLdz = grad + gOV@np.transpose(A) + np.transpose(W_k)@W_q@z@g_s
         return dLdZ
+    
+    def step_gd(self,step_size):
+
+        #We need to call the step_gd method of the linear layer
+        self.embed.step_gd(step_size)
+
+        #And since we override step_gd(), we use super 
+        #which calls the step_gd() of the base class
+        #and does gd for the paramters in the params dict
+        super().step_gd(step_size)
     
     
 
