@@ -33,23 +33,31 @@ class Layer:
         """
         for param in self.params:
             self.params[param]['w'] -= alpha*self.params[param]['d']
+        return #lagt til, bør den ikke returnere noe her?
 
-    def adam(self, L, W_i, alpha, ):
+    def adam(self,alpha = 0.01, param):
         b_1 = 0.9
         b_2 = 0.999
-        alpha = 0.01
         eps = 10**-8
         
         #Make V_0 and M_0 in same dimensions as W_i
-        dimensions = W_i.shape
+        dimensions = param.shape
         rows, columns = dimensions
         V_0 = np.zeros([rows, columns])
         M_0 = np.zeros([rows, columns])
 
+        W_j = param #setting init value for j-iteration
+
         for j in range()
             G_j = dLdW_j #legg inn riktig parameterliste med dens deriverte her
-            M_j = b_1*
+            M_j = b_1*M_j + (1-b_1)*G_j
+            V_j = b_2*V_j + (1-b_2)*np.multiply(G_j,G_j)
+            M_j_hat = (1/(1-(b_1)**j))*M_j
+            V_j_hat = (1/(1-(b_2)**j))*V_j
 
+            W_j = W_j - alpha(np.multiply(M_j_hat,(np.sqrt(V_j_hat)+eps)))
+        
+        return W_j
 
 class Attention(Layer):
 
