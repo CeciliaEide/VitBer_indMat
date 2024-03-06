@@ -41,6 +41,7 @@ class NeuralNetwork():
         return
     
     def adam(self, alpha):
-    for layer in self.layers:
-        if isinstance(layer, LinearLayer, EmbedPosition, FeedForward, Attention):
-            layer.adam(alpha)
+        for layer in self.layers:
+            if isinstance(layer, LinearLayer, EmbedPosition, FeedForward, Attention):
+                layer.adam(alpha)
+        return
