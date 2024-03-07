@@ -67,7 +67,7 @@ class Attention(Layer):
         Your code here
         """
         ##lage nye dictionaries for parameterene som ikke er en del av linear layers 
-        #Initialize the parameter dictionary for weight with key "Wp"
+        #Initialize the parameter dictionary for weight with key "W_.."
         self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None},
                        "W_q":{'w':np.random.randn(k,d)*init_scale,'d':None},
                        "W_o":{'w':np.random.randn(k,d)*init_scale,'d':None},
@@ -93,7 +93,20 @@ class Attention(Layer):
         gOV = np.transpose(W_v) @ W_o @ grad
         g_s = Softmax.backward(np.transpose(z) * gOV)
         dLdz = grad + gOV@np.transpose(A) + np.transpose(W_k)@W_q@z@g_s
-        return dLdZ
+
+        #Oppdatere parameterne her??
+        b = grad.shape[0]
+
+        #Compute gradient (average over B batches) of loss wrt weight w: 
+        #dL/dw = (1/B)*sum_b^B (grad_b@x_b^T)
+        self.params['W_o']['w']['d'] = ((self.params['W_v']['w']) @ z @ A @ np.transpose(grad))/b #hva er z her?
+        self.params['W_v']['w']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(A) @ np.transpose(z))/b
+        self.params['W_k']['w']['d'] = ((self.params['W_q']['w']) @ z @ g_s @ np.transpose(z))/b
+        self.params['W_q']['w']['d'] = ((self.params['W_k']['w'] )@ z@np.transpose(g_s) @ np.transpose(z))/b
+
+        #Return gradient of loss wrt input of layer
+        #dL/dw = w@grad.T
+        return np.einsum('od,bon->bdn',self.params['w']['w'],grad)
     
     def step_gd(self,step_size):
 
