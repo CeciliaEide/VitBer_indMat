@@ -36,16 +36,17 @@ class Layer:
         return #lagt til, bør den ikke returnere noe her?
 
     def adam(self,alpha = 0.01, param):
-        b_1 = 0.9
-        b_2 = 0.999
-        eps = 10**-8
+        #Variable initialization 
+        b_1 = 0.9 #first decaying average with proposed default value of 0.9
+        b_2 = 0.999 #second decaying average with proposed default value of 0.999
+        eps = 10**-8 #variable for numerical stability during division
         
-        #Make V_0 and M_0 in same dimensions as W_i
+        #Make V_0 and M_0 in same dimensions as W_i, bør dette gjøres før det tas inn i adam??
         dimensions = param.shape
         rows, columns = dimensions
         V_0 = np.zeros([rows, columns])
         M_0 = np.zeros([rows, columns])
-        #tenk på hvordan lagre M_j og V_j i dictionary på samme måte som G_j...
+        #tenk på hvordan lagre M_j og V_j i dictionary på samme måte som G_j... (??)
 
         W_j = param #setting init value for j-iteration
 
