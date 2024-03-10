@@ -112,18 +112,18 @@ class Attention(Layer):
 
     def backward(self,grad):
         gOV = np.transpose(self.params['W_v']['w']) @ self.params['W_o']['w'] @ grad
-        g_s = Softmax.backward(np.transpose(z) * gOV)
-        dLdz = grad + gOV@np.transpose(A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@z@g_s
+        g_s = Softmax.backward(np.transpose(self.z) * gOV)
+        dLdz = grad + gOV@np.transpose(A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s
 
         #Oppdatere parameterne her??
         b = grad.shape[0]
 
         #Compute gradient (average over B batches) of loss wrt weight w: 
         #dL/dw = (1/B)*sum_b^B (grad_b@x_b^T)
-        self.params['W_o']['w']['d'] = ((self.params['W_v']['w']) @ z @ A @ np.transpose(grad))/b #hva er z her?
-        self.params['W_v']['w']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(A) @ np.transpose(z))/b
-        self.params['W_k']['w']['d'] = ((self.params['W_q']['w']) @ z @ g_s @ np.transpose(z))/b
-        self.params['W_q']['w']['d'] = ((self.params['W_k']['w'] )@ z@np.transpose(g_s) @ np.transpose(z))/b
+        self.params['W_o']['w']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b #hva er z her?
+        self.params['W_v']['w']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(self.A) @ np.transpose(z))/b
+        self.params['W_k']['w']['d'] = ((self.params['W_q']['w']) @ self.z @ g_s @ np.transpose(self.z))/b
+        self.params['W_q']['w']['d'] = ((self.params['W_k']['w'] )@ self.z @np.transpose(g_s) @ np.transpose(self.z))/b
 
         #Return gradient of loss wrt input of layer
         #dL/dw = w@grad.T
