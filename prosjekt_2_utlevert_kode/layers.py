@@ -91,7 +91,7 @@ class Attention(Layer):
         self.params['W_o']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b
         self.params['W_v']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(A) @ np.transpose(self.z))/b
         self.params['W_k']['d'] = ((self.params['W_q']['w']) @ self.z @ g_s @ np.transpose(self.z))/b
-        self.params['W_q']['d'] = ((self.params['W_k']['w'] )@ self.z @np.transpose(g_s) @ np.transpose(self.z))/b
+        self.params['W_q']['d'] = ((self.params['W_k']['w'])@ self.z @np.transpose(g_s) @ np.transpose(self.z))/b
 
         #Return gradient of loss wrt input of layer
         #dL/dw = w@grad.T
@@ -137,19 +137,17 @@ class Softmax(Layer):
 
 class CrossEntropy(Layer):
 
-    def __init__(self,your_arguments_here):
-        """
-        Your code here
-        """
+    def __init__(self):
+
         return
 
         
 
-    def forward(self,y,Y_hat):
-       #en del her burde flyttes til init funk kanskje?
-        Y = onehot(y)
+    def forward(self,y,Y_hat,m,n):
+        self.Y = onehot(y) 
+        self.Y_hat = Y_hat
         one = np.ones(m)
-        p = one*np.multiply(Y_hat,Y) 
+        p = one*np.multiply(Y_hat,self.Y) 
         q = -np.log(p) #naturlig eller tier logaritme?
 
         L = (1/n)*((q).sum(axis=0))
@@ -159,7 +157,7 @@ class CrossEntropy(Layer):
 
     def backward(self):
         eps = 10**-8
-        dLdY = (1/n)*(np.multiply(Y,Y_hat+eps))
+        dLdY = (1/n)*(np.multiply(self.Y,self.Y_hat+eps))
         return dLdY
     
 
@@ -168,7 +166,7 @@ class LinearLayer(Layer):
     """
     Linear Layer
     """
-    def __init__(self,input_size, output_size,init_scale = 0.1):
+    def __init__(self,input_size,output_size,init_scale = 0.1):
         """
         Constructor takes input size and output size of layer 
         and scale for the weights
