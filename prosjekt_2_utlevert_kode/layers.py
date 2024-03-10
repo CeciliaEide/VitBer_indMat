@@ -84,7 +84,7 @@ class Attention(Layer):
     def backward(self,grad):
         gOV = np.transpose(self.params['W_v']['w']) @ self.params['W_o']['w'] @ grad
         g_s = Softmax.backward(np.transpose(self.z) * gOV)
-        dLdz = grad + gOV@np.transpose(A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s
+        dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s
 
         b = grad.shape[0]
 
@@ -160,7 +160,7 @@ class CrossEntropy(Layer):
 
     def backward(self):
         eps = 10**-8
-        dLdY = (1/n)*(np.multiply(self.Y,self.Y_hat+eps))
+        dLdY = (1/n)*(np.multiply(self.Y,self.Y_hat+eps)) #lagre n
         return dLdY
 
 
