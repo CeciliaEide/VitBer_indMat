@@ -106,14 +106,14 @@ class Attention(Layer):
         D[i1,i2] -= np.inf
 
         A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_k']['w'])@(self.params['W_q']['w'])@z)+D) #definer parameterene. Hvor? Definer ogs z
-        z_l = z + np.transpose(W_o)@W_v@z@A
+        z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@A
         return z_l
 
 
     def backward(self,grad):
-        gOV = np.transpose(W_v) @ W_o @ grad
+        gOV = np.transpose(self.params['W_v']['w']) @ self.params['W_o']['w'] @ grad
         g_s = Softmax.backward(np.transpose(z) * gOV)
-        dLdz = grad + gOV@np.transpose(A) + np.transpose(W_k)@W_q@z@g_s
+        dLdz = grad + gOV@np.transpose(A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@z@g_s
 
         #Oppdatere parameterne her??
         b = grad.shape[0]
@@ -194,7 +194,7 @@ class CrossEntropy(Layer):
         Y = onehot(y)
         one = np.ones(m)
         p = one*np.multiply(Y_hat,Y) 
-        q = -np.log(p) #naturlig eller tier?
+        q = -np.log(p) #naturlig eller tier logaritme?
 
         L = (1/n)*((q).sum(axis=0))
 
@@ -206,11 +206,6 @@ class CrossEntropy(Layer):
         dLdY = (1/n)*(np.multiply(Y,Y_hat+eps))
         return dLdY
     
-
-l1 = LinearLayer(t,r)
-
-
-layers = [l1,l2,....,l_U,l_S]
 
 class LinearLayer(Layer):
 
