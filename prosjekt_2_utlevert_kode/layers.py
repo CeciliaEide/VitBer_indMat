@@ -89,7 +89,7 @@ class Attention(Layer):
     def __init__(self,d,k,init_scale=0.1):
         ##lage nye dictionaries for parameterene som ikke er en del av linear layers 
         #Initialize the parameter dictionary for weight with key "W_.."
-        self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None},
+        self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}, #Vise
                        "W_q":{'w':np.random.randn(k,d)*init_scale,'d':None},
                        "W_o":{'w':np.random.randn(k,d)*init_scale,'d':None},
                        "W_v":{'w':np.random.randn(k,d)*init_scale,'d':None}}
