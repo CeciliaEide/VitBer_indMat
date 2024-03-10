@@ -40,9 +40,9 @@ class NeuralNetwork():
                 layer.step_gd(alpha)
         return
     
-    def adam(self, alpha):
+    def step_adam(self,alpha,j):
         for layer in self.layers:
             #Check if layer is an instance of a class that has parameters
-            if isinstance(layer, LinearLayer, EmbedPosition, FeedForward, Attention):
-                layer.adam(alpha)
+            if isinstance(layer, LinearLayer, EmbedPosition, FeedForward, Attention): #Unembedding også evt.
+                layer.step_adam(alpha,j)
         return
