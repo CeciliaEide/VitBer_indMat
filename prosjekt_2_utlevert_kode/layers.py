@@ -86,10 +86,7 @@ class Layer:
 
 class Attention(Layer):
 
-    def __init__(self,your_arguments_here):
-        """
-        Your code here
-        """
+    def __init__(self,d,k,init_scale=0.1):
         ##lage nye dictionaries for parameterene som ikke er en del av linear layers 
         #Initialize the parameter dictionary for weight with key "W_.."
         self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None},
@@ -429,3 +426,45 @@ class FeedForward(Layer):
         #Call the step_gd method of the linear layers
         self.l1.step_gd(step_size)
         self.l2.step_gd(step_size)
+
+
+class Unembed:
+
+    def __init__(self,d,m,init_scale = 0.1):
+        """
+        Input:
+            d: input dimension d x n
+            m: output dimension m x n
+
+        """
+        #Lage med n også? skal vel være på formen (d, n) og (m, n)
+        self.l = LinearLayer(m,d,init_scale) #Som feed forward, men bare ett lag
+
+
+    def forward(self,z_L):
+        self.z_L = z_L #Trenger vel egentlig ikke?
+
+        return self.l.forward(z_L)
+    
+    def backward(self,grad):
+        """
+        Input:
+            - grad of shape (b,d,n)
+
+        Output:
+            - derivative of loss wrt input x. Shape (b,d,n)
+        
+        """
+
+        #We use backward pass of the linear layers and activation.
+        #Recall that the backward pass reverse the order of the layers. 
+        grad_feed_forward = self.l.backward(grad)
+
+        #Since forward pass is x + W2.T@Relu(W1@x)
+        return grad + grad_feed_forward
+
+
+    def step_gd(self,step_size):
+
+        #Call the step_gd method of the linear layers
+        self.l.step_gd(step_size)
