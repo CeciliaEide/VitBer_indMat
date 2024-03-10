@@ -60,6 +60,29 @@ class Layer:
             W_j = W_j - alpha(np.multiply(M_j_hat,(np.sqrt(V_j_hat)+eps)))
         
         return W_j
+    
+    def step_adam(self, alpha, b_1, b_2): #Ta inn eller lage b1/b2?
+        #Variable initialization 
+        b_1 = 0.9 #first decaying average with proposed default value of 0.9
+        b_2 = 0.999 #second decaying average with proposed default value of 0.999
+        eps = 10**-8 #variable for numerical stability during division
+
+        for param in self.params:
+            G_j = self.params[param]['d']
+            
+            M_j = b_1*self.params[param]['M'] + (1-b_1)*G_j
+            V_j = b_2*self.params[param]['V'] + (1-b_2)*np.multiply(G_j,G_j)
+
+            self.params[param]['M'] = M_j
+            self.params[param]['V'] = V_j
+            
+            M_j_hat = (1/(1-(b_1)**j))*M_j
+            V_j_hat = (1/(1-(b_2)**j))*V_j
+
+            self.params[param]['w'] -= alpha(np.multiply(M_j_hat,(np.sqrt(V_j_hat)+eps)))
+
+
+
 
 class Attention(Layer):
 
