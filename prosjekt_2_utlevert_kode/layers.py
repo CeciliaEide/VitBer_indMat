@@ -33,35 +33,8 @@ class Layer:
         """
         for param in self.params:
             self.params[param]['w'] -= alpha*self.params[param]['d']
-        return #lagt til, bør den ikke returnere noe her?
-
-    def adam(self,alpha = 0.01, param):
-        #Variable initialization 
-        b_1 = 0.9 #first decaying average with proposed default value of 0.9
-        b_2 = 0.999 #second decaying average with proposed default value of 0.999
-        eps = 10**-8 #variable for numerical stability during division
-        
-        #Make V_0 and M_0 in same dimensions as W_i, bør dette gjøres før det tas inn i adam??
-        dimensions = param.shape
-        rows, columns = dimensions
-        V_0 = np.zeros([rows, columns])
-        M_0 = np.zeros([rows, columns])
-        #tenk på hvordan lagre M_j og V_j i dictionary på samme måte som G_j... (??)
-
-        W_j = param #setting init value for j-iteration
-
-        for j in range(1,n_iter) #hva er n_iter? Flytt denne ut, skal ikke iterere før Adam
-            G_j = dLdW_j #legg inn riktig parameterliste med dens deriverte her
-            M_j = b_1*M_j + (1-b_1)*G_j
-            V_j = b_2*V_j + (1-b_2)*np.multiply(G_j,G_j)
-            M_j_hat = (1/(1-(b_1)**j))*M_j
-            V_j_hat = (1/(1-(b_2)**j))*V_j
-
-            W_j = W_j - alpha(np.multiply(M_j_hat,(np.sqrt(V_j_hat)+eps)))
-        
-        return W_j
     
-    def step_adam(self, alpha, b_1, b_2): #Ta inn eller lage b1/b2?
+    def step_adam(self, alpha, j, b_1 = 0.9, b_2 = 0.999): #Ta inn eller lage b1/b2, 
         #Variable initialization 
         b_1 = 0.9 #first decaying average with proposed default value of 0.9
         b_2 = 0.999 #second decaying average with proposed default value of 0.999
@@ -73,8 +46,8 @@ class Layer:
             M_j = b_1*self.params[param]['M'] + (1-b_1)*G_j
             V_j = b_2*self.params[param]['V'] + (1-b_2)*np.multiply(G_j,G_j)
 
-            self.params[param]['M'] = M_j
-            self.params[param]['V'] = V_j
+            self.params[param]['M'] = M_j #Opdate M
+            self.params[param]['V'] = V_j #Update V
             
             M_j_hat = (1/(1-(b_1)**j))*M_j
             V_j_hat = (1/(1-(b_2)**j))*V_j
@@ -83,62 +56,46 @@ class Layer:
 
 
 
-
 class Attention(Layer):
 
     def __init__(self,d,k,init_scale=0.1):
-        ##lage nye dictionaries for parameterene som ikke er en del av linear layers 
         #Initialize the parameter dictionary for weight with key "W_.."
-        self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}, #Vise
-                       "W_q":{'w':np.random.randn(k,d)*init_scale,'d':None},
-                       "W_o":{'w':np.random.randn(k,d)*init_scale,'d':None},
-                       "W_v":{'w':np.random.randn(k,d)*init_scale,'d':None}}
-
+        self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
+                       "W_q":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
+                       "W_o":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
+                       "W_v":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}}
         return
 
         
-
-    def forward(self,z):
-
-        #definisjon av D, D er en nxn matrise
+    def forward(self,z,n):
+        self.z = z
+        
         D = np.zeros((n,n))
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-        A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_k']['w'])@(self.params['W_q']['w'])@z)+D) #definer parameterene. Hvor? Definer ogs z
-        z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@A
+        self.A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_k']['w'])@(self.params['W_q']['w'])@z)+D)
+        
+        z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@self.A
         return z_l
 
 
     def backward(self,grad):
         gOV = np.transpose(self.params['W_v']['w']) @ self.params['W_o']['w'] @ grad
-        g_s = Softmax.backward(np.transpose(z) * gOV)
-        dLdz = grad + gOV@np.transpose(A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@z@g_s
+        g_s = Softmax.backward(np.transpose(self.z) * gOV)
+        dLdz = grad + gOV@np.transpose(A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s
 
-        #Oppdatere parameterne her??
         b = grad.shape[0]
 
-        #Compute gradient (average over B batches) of loss wrt weight w: 
-        #dL/dw = (1/B)*sum_b^B (grad_b@x_b^T)
-        self.params['W_o']['w']['d'] = ((self.params['W_v']['w']) @ z @ A @ np.transpose(grad))/b #hva er z her?
-        self.params['W_v']['w']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(A) @ np.transpose(z))/b
-        self.params['W_k']['w']['d'] = ((self.params['W_q']['w']) @ z @ g_s @ np.transpose(z))/b
-        self.params['W_q']['w']['d'] = ((self.params['W_k']['w'] )@ z@np.transpose(g_s) @ np.transpose(z))/b
+        #Compute gradient (average over B batches) of loss wrt weight w: (Oppdatere d)
+        self.params['W_o']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b
+        self.params['W_v']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(A) @ np.transpose(self.z))/b
+        self.params['W_k']['d'] = ((self.params['W_q']['w']) @ self.z @ g_s @ np.transpose(self.z))/b
+        self.params['W_q']['d'] = ((self.params['W_k']['w'] )@ self.z @np.transpose(g_s) @ np.transpose(self.z))/b
 
         #Return gradient of loss wrt input of layer
         #dL/dw = w@grad.T
-        return np.einsum('od,bon->bdn',self.params['w']['w'],grad)
-    
-    def step_gd(self,step_size):
-
-        #We need to call the step_gd method of the linear layer
-        self.embed.step_gd(step_size)
-
-        #And since we override step_gd(), we use super 
-        #which calls the step_gd() of the base class
-        #and does gd for the paramters in the params dict
-        super().step_gd(step_size)
-    
+        return np.einsum('od,bon->bdn',self.params['w']['w'],grad) #dLdz istedenfor?
     
 
 
@@ -152,16 +109,16 @@ class Softmax(Layer):
     """
 
     def __init__(self,z): #sjekk x, viser her til matrisen, hva gjør denne?
-        """
-        Your code here
-        """
-        self.z = z
+        
         return
+        
 
     
     def forward(self,z):
-        P = np.exp(z - z.max(axis=axis,keepdims=True))
-        Q = np.sum(P,axis=axis,keepdims=True)
+        self.z = z
+
+        self.P = np.exp(z - z.max(axis=axis,keepdims=True)) #Lagrer her for å kunne bruke i backward
+        self.Q = np.sum(self.P,axis=axis,keepdims=True)
         eps = 10**-8 #legges til for å unngå divisjon med null
 
         z_l = np.multiply(P,(Q+eps)**(-1))
@@ -169,13 +126,12 @@ class Softmax(Layer):
         return z_l
 
 
-    def backward(self,grad): #midlertidig
-        P = np.exp(z - z.max(axis=axis,keepdims=True))
-        S = np.multiply(P,((np.multiply(Q,Q)+eps)**-1))
+    def backward(self,grad): #trengs den egentlig?
+        S = np.multiply(self.P,((np.multiply(self.Q,self.Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
 
-        dLdZ = np.multiply(grad,forward(z))-np.multiply((np.multiply(grad,S)).sum(axis=0),P)
-        return dLdZ
+        dLdz = np.multiply(grad.forward(z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P)
+        return dLdz
 
 
 
