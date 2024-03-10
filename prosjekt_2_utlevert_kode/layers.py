@@ -36,8 +36,8 @@ class Layer:
     
     def step_adam(self, alpha, j, b_1 = 0.9, b_2 = 0.999): #Ta inn eller lage b1/b2, 
         #Variable initialization 
-        b_1 = 0.9 #first decaying average with proposed default value of 0.9
-        b_2 = 0.999 #second decaying average with proposed default value of 0.999
+        #b_1 = 0.9 #first decaying average with proposed default value of 0.9
+        #b_2 = 0.999 #second decaying average with proposed default value of 0.999
         eps = 10**-8 #variable for numerical stability during division
 
         for param in self.params:
@@ -110,7 +110,7 @@ class Softmax(Layer):
     Q = np.sum(P,axis=axis,keepdims=True)
     """
 
-    def __init__(self,z): #sjekk x, viser her til matrisen, hva gjør denne?
+    def __init__(self):
         
         return
         
@@ -383,47 +383,3 @@ class FeedForward(Layer):
         #Call the step_gd method of the linear layers
         self.l1.step_gd(step_size)
         self.l2.step_gd(step_size)
-
-
-
-
-class UnembedPosition(Layer):
-
-    def __init__(self,d,m,init_scale = 0.1):
-        """
-        Input:
-            d: input dimension d x n
-            m: output dimension m x n
-
-        """
-        #Lage med n også? skal vel være på formen (d, n) og (m, n)
-        self.l = LinearLayer(m,d,init_scale) #Som feed forward, men bare ett lag
-
-
-    def forward(self,z_L):
-        self.z_L = z_L #Trenger vel egentlig ikke?
-
-        return self.l.forward(z_L)
-    
-    def backward(self,grad):
-        """
-        Input:
-            - grad of shape (b,d,n)
-
-        Output:
-            - derivative of loss wrt input x. Shape (b,d,n)
-        
-        """
-
-        #We use backward pass of the linear layers and activation.
-        #Recall that the backward pass reverse the order of the layers. 
-        grad_feed_forward = self.l.backward(grad)
-
-        #Since forward pass is x + W2.T@Relu(W1@x)
-        return grad + grad_feed_forward
-
-
-    def step_gd(self,step_size):
-
-        #Call the step_gd method of the linear layers
-        self.l.step_gd(step_size)
