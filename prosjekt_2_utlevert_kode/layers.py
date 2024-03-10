@@ -56,6 +56,7 @@ class Layer:
 
 
 
+
 class Attention(Layer):
 
     def __init__(self,d,k,init_scale=0.1):
@@ -99,6 +100,7 @@ class Attention(Layer):
     
 
 
+
 class Softmax(Layer):
     """
     For å unngå numerisk ustabilitet (overflow i exp), kan du bruke følgende triks
@@ -135,6 +137,7 @@ class Softmax(Layer):
 
 
 
+
 class CrossEntropy(Layer):
 
     def __init__(self):
@@ -159,7 +162,9 @@ class CrossEntropy(Layer):
         eps = 10**-8
         dLdY = (1/n)*(np.multiply(self.Y,self.Y_hat+eps))
         return dLdY
-    
+
+
+
 
 class LinearLayer(Layer):
 
@@ -213,6 +218,8 @@ class LinearLayer(Layer):
         return np.einsum('od,bon->bdn',self.params['w']['w'],grad)
     
 
+
+
 class Relu(Layer):
     """
     Relu activation function
@@ -235,6 +242,7 @@ class Relu(Layer):
 
         #dL/dx = grad * relu'(x)
         return grad * np.where(self.x > 0, np.ones_like(self.x), np.zeros_like(self.x))
+
 
 
 
@@ -377,7 +385,9 @@ class FeedForward(Layer):
         self.l2.step_gd(step_size)
 
 
-class Unembed:
+
+
+class UnembedPosition(Layer):
 
     def __init__(self,d,m,init_scale = 0.1):
         """
