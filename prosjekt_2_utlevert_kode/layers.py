@@ -193,6 +193,8 @@ class LinearLayer(Layer):
                             'M':np.zeros_like(self.w),
                             'V':np.zeros_like(self.w)}}
         
+        self.j = 0
+        
 
     def forward(self,x):
         """
