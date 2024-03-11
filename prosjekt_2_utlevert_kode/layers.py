@@ -275,6 +275,8 @@ class EmbedPosition(Layer):
         #Initialize the parameter dictionary for weight with key "Wp"
         self.params = {"Wp":{'w':self.w,'d':None, 'M':np.zeros_like(self.w), 'V': np.zeros_like(self.w)}}
 
+        self.j = 0
+
     def forward(self,X):
 
         """
