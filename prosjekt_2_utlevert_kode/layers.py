@@ -70,7 +70,8 @@ class Attention(Layer):
         
     def forward(self,z):
         self.z = z
-        
+        n = z.shape[2]
+
         D = np.zeros((n,n))
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
