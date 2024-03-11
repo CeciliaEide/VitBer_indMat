@@ -157,9 +157,16 @@ class CrossEntropy(Layer):
 
         self.Y = onehot(y,m) 
         self.Y_hat = Y_hat
+
         one = np.ones(m)
-        p = np.einsum('m,mn->mn', one, np.multiply(Y_hat,self.Y), optimize = True) #bmn
+        ###prøvd å fikse for å få riktig dim i utregning 
+        remove = Y_hat.shape[-1] - self.Y.shape[-1]
+        Y_hatNew = Y_hat[:,:,:-remove]
+        ###
+        p = np.einsum('m,bmj->bm', one, np.multiply(Y_hatNew,self.Y), optimize = True) #bmn
         q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
+
+
 
         L = (1/self.n)*((q).sum(axis=0))
 
