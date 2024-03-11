@@ -95,23 +95,10 @@ class Attention(Layer):
         self.params['W_o']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b
         self.params['W_v']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(self.A) @ np.transpose(self.z))/b
         self.params['W_k']['d'] = ((self.params['W_q']['w']) @ self.z @ g_s @ np.transpose(self.z))/b
-        self.params['W_q']['d'] = ((self.params['W_k']['w'])@ self.z @np.transpose(g_s) @ np.transpose(self.z))/b
+        self.params['W_q']['d'] = ((self.params['W_k']['w']) @ self.z @np.transpose(g_s) @ np.transpose(self.z))/b
 
         return dLdz
-    
-    def step_gd(self,step_size):
-
-        #We need to call the step_gd method of the linear layer
-        self.embed.step_gd(step_size)
-
-        #And since we override step_gd(), we use super 
-        #which calls the step_gd() of the base class
-        #and does gd for the paramters in the params dict
-        super().step_gd(step_size)
-    
-    def step_adam(self,step_size):
-        super().step_adam(step_size)
-    
+        
 
 
 
