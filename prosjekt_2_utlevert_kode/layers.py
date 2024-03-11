@@ -132,11 +132,10 @@ class Softmax(Layer):
 
 
     def backward(self,grad): 
-
-        S = self.P/(np.multiply(self.Q,self.Q)+eps)
         eps = 10**-8 #legges til for å unngå divisjon med null
-
-        dLdz = np.multiply(grad.forward(self.z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P) #axis = 0?
+        S = self.P/(np.multiply(self.Q,self.Q)+eps)
+        
+        dLdz = np.multiply(grad.forward(self.z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P) #axis = 0? Feil feil
         return dLdz
 
 
@@ -153,7 +152,7 @@ class CrossEntropy(Layer):
     def forward(self,Z,y):
         self.n = Z.shape[-1]
         m = Z.shape[-2]
-        r = len(y[1])
+        r = y.shape[1]
 
         self.Y = onehot(y,m) 
         self.Y_hat = Z[:,:,-r:]
@@ -163,17 +162,17 @@ class CrossEntropy(Layer):
         #remove = Y_hat.shape[-1] - self.Y.shape[-1]
         #self.Y_hatNew = Y_hat[:,:,:-remove]
 
-        p = np.einsum('m,bmj->bm', one, np.multiply(self.Y_hat,self.Y), optimize = True) #bmn
+        p = np.einsum('m,bmj->bj', one, np.multiply(self.Y_hat,self.Y), optimize = True) #bmn, se på indekser
         q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
 
-        L = (1/self.n)*((q).sum(axis=0))#axis != 1? #evt. len q
+        L = (1/self.n)*(q.sum(axis=0))#axis != 1? #evt. len q
 
         return L
 
 
     def backward(self):
         eps = 10**-8
-        dLdY = (1/self.n)*(np.multiply(self.Y,self.Y_hat+eps))
+        dLdY = (1/self.n)*(np.multiply(self.Y,self.Y_hat+eps)) #Indekser
         return dLdY
 
 
