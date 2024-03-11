@@ -385,3 +385,7 @@ class FeedForward(Layer):
         #Call the step_gd method of the linear layers
         self.l1.step_gd(step_size)
         self.l2.step_gd(step_size)
+
+    def step_adam(self,step_size):
+        self.l1.step_adam(step_size)
+        self.l2.step_adam(step_size)
