@@ -322,6 +322,7 @@ class EmbedPosition(Layer):
         super().step_gd(step_size)
     
     def step_adam(step_size):
+        
         self.embed.step_adam(step_size)
         super().step_adam(step_size) #Hvorfor må vi ha det med?
 
@@ -331,7 +332,7 @@ class EmbedPosition(Layer):
 class FeedForward(Layer):
 
 
-    def __init__(self,d, p,init_scale = 0.1):
+    def __init__(self,d,p,init_scale = 0.1):
         """
         Input:
             d: input dimension of first layer and output of second
@@ -391,5 +392,6 @@ class FeedForward(Layer):
         self.l2.step_gd(step_size)
 
     def step_adam(self,step_size):
+        
         self.l1.step_adam(step_size)
         self.l2.step_adam(step_size)
