@@ -165,7 +165,7 @@ class CrossEntropy(Layer):
         p = np.einsum('m,bmj->bj', one, np.multiply(self.Y_hat,self.Y), optimize = True) #bmn, se på indekser
         q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
 
-        L = (1/self.n)*(q.sum(axis=0))#axis != 1? #evt. len q
+        L = (1/self.n)*(q.sum(axis=0))#se på n
 
         return L
 
