@@ -147,12 +147,12 @@ class CrossEntropy(Layer):
 
         
 
-    def forward(self,y,Y_hat,m,n):
+    def forward(self,Y_hat,y,m,n):
         self.Y = onehot(y) 
         self.Y_hat = Y_hat
         one = np.ones(m)
         p = one*np.multiply(Y_hat,self.Y) 
-        q = -np.log(p) #naturlig eller tier logaritme?
+        q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
 
         L = (1/n)*((q).sum(axis=0))
 
