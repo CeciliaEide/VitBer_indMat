@@ -35,7 +35,7 @@ class Layer:
             self.params[param]['w'] -= alpha*self.params[param]['d']
     
     def step_adam(self, alpha):
-        self.j +=1 #sette self.j = 0 der vi skal bruke i init
+        self.j +=1
         
         #Variable initialization 
         b_1 = 0.9 #first decaying average with proposed default value of 0.9
@@ -51,8 +51,8 @@ class Layer:
             self.params[param]['M'] = M_j #Update M
             self.params[param]['V'] = V_j #Update V
             
-            M_j_hat = (1/(1-(b_1)**j))*M_j
-            V_j_hat = (1/(1-(b_2)**j))*V_j
+            M_j_hat = (1/(1-(b_1)**self.j))*M_j
+            V_j_hat = (1/(1-(b_2)**self.j))*V_j
 
             self.params[param]['w'] -= alpha(np.multiply(M_j_hat,(np.sqrt(V_j_hat)+eps)))
 
@@ -81,7 +81,7 @@ class Attention(Layer):
         D[i1,i2] -= np.inf
 
 #bruke einsum, dimentions: z = bdn, 
-        calceinsum = np.einsum('bnd,dk,kd,bnd->ndb', np.transpose(z),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
+        calceinsum = np.einsum('bnd,dk,kd,bnd->bnd', np.transpose(z),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
         self.A = Softmax.forward(calceinsum +D)
         #self.A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_q']['w'])@(self.params['W_k']['w'])@z)+D)
         
