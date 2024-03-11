@@ -119,6 +119,7 @@ class Softmax(Layer):
     
     def forward(self,z):
         self.z = z
+        axis = -1
 
         self.P = np.exp(z - z.max(axis=axis,keepdims=True)) #Lagrer her for å kunne bruke i backward
         self.Q = np.sum(self.P,axis=axis,keepdims=True)
