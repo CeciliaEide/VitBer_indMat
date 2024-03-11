@@ -263,7 +263,7 @@ class EmbedPosition(Layer):
         self.w = np.random.randn(d,n_max)*init_scale
 
         #Initialize the parameter dictionary for weight with key "Wp"
-        self.params = {"Wp":{'w':self.w,'d':None}}
+        self.params = {"Wp":{'w':self.w,'d':None, 'M':np.zeros_like(self.w), 'V': np.zeros_like(self.w)}}
 
     def forward(self,X):
 
