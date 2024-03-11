@@ -94,7 +94,7 @@ class Attention(Layer):
         g_s = Softmax.backward(np.transpose(self.z) * gOV)
         dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s
 
-        #Compute gradient (average over B batches) of loss wrt weight w: (Oppdatere d)
+        #Compute gradient (average over B batches) of loss wrt weight w: #Gjøre til 2D array i einsum
         self.params['W_o']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b
         self.params['W_v']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(self.A) @ np.transpose(self.z))/b
         self.params['W_k']['d'] = ((self.params['W_q']['w']) @ self.z @ g_s @ np.transpose(self.z))/b
@@ -127,14 +127,14 @@ class Softmax(Layer):
         self.Q = np.sum(self.P,axis=1,keepdims=True)
         eps = 10**-8 #legges til for å unngå divisjon med null
 
-        z_l = np.multiply(self.P,(self.Q+eps)**(-1))
+        z_l = self.P/(self.Q+eps)
 
         return z_l
 
 
     def backward(self,grad): 
 
-        S = np.multiply(self.P,((np.multiply(self.Q,self.Q)+eps)**-1))
+        S = self.P/(np.multiply(self.Q,self.Q)+eps)
         eps = 10**-8 #legges til for å unngå divisjon med null
 
         dLdz = np.multiply(grad.forward(self.z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P)
