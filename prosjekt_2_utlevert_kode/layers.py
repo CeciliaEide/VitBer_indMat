@@ -34,7 +34,9 @@ class Layer:
         for param in self.params:
             self.params[param]['w'] -= alpha*self.params[param]['d']
     
-    def step_adam(self, alpha, j):
+    def step_adam(self, alpha):
+        self.j +=1 #sette self.j = 0 der vi skal bruke i init
+        
         #Variable initialization 
         b_1 = 0.9 #first decaying average with proposed default value of 0.9
         b_2 = 0.999 #second decaying average with proposed default value of 0.999
@@ -70,7 +72,7 @@ class Attention(Layer):
         
     def forward(self,z):
         self.z = z
-        n = z.shape[2] 
+        n = z.shape[-1] 
 
         D = np.zeros((n,n))
         i1,i2 = np.tril_indices(n,-1)
@@ -87,7 +89,7 @@ class Attention(Layer):
         
         gOV = np.transpose(self.params['W_v']['w']) @ self.params['W_o']['w'] @ grad
         g_s = Softmax.backward(np.transpose(self.z) * gOV)
-        dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s/b #b her?
+        dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s
 
         #Compute gradient (average over B batches) of loss wrt weight w: (Oppdatere d)
         self.params['W_o']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b
@@ -95,9 +97,20 @@ class Attention(Layer):
         self.params['W_k']['d'] = ((self.params['W_q']['w']) @ self.z @ g_s @ np.transpose(self.z))/b
         self.params['W_q']['d'] = ((self.params['W_k']['w'])@ self.z @np.transpose(g_s) @ np.transpose(self.z))/b
 
-        #Return gradient of loss wrt input of layer
-        #dL/dw = w@grad.T
         return dLdz
+    
+    def step_gd(self,step_size):
+
+        #We need to call the step_gd method of the linear layer
+        self.embed.step_gd(step_size)
+
+        #And since we override step_gd(), we use super 
+        #which calls the step_gd() of the base class
+        #and does gd for the paramters in the params dict
+        super().step_gd(step_size)
+    
+    def step_adam(self,step_size):
+        super().step_adam(step_size)
     
 
 
@@ -130,10 +143,11 @@ class Softmax(Layer):
 
 
     def backward(self,grad): #trengs den egentlig?
+
         S = np.multiply(self.P,((np.multiply(self.Q,self.Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
 
-        dLdz = np.multiply(grad.forward(self.z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P) #/b
+        dLdz = np.multiply(grad.forward(self.z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P)
         return dLdz
 
 
@@ -147,21 +161,24 @@ class CrossEntropy(Layer):
 
         
 
-    def forward(self,Y_hat,y,m,n):
+    def forward(self,Y_hat,y):
+        self.n = shape.Y_hat[-1]
+        m = shape.Y_hat[-2]
+
         self.Y = onehot(y) 
         self.Y_hat = Y_hat
         one = np.ones(m)
         p = one*np.multiply(Y_hat,self.Y) 
         q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
 
-        L = (1/n)*((q).sum(axis=0))
+        L = (1/self.n)*((q).sum(axis=0))
 
         return L
 
 
     def backward(self):
         eps = 10**-8
-        dLdY = (1/n)*(np.multiply(self.Y,self.Y_hat+eps)) #lagre n
+        dLdY = (1/self.n)*(np.multiply(self.Y,self.Y_hat+eps))
         return dLdY
 
 
@@ -325,7 +342,7 @@ class EmbedPosition(Layer):
     def step_adam(self,step_size):
         
         self.embed.step_adam(step_size)
-        super().step_adam(step_size) #Hvorfor må vi ha det med?
+        super().step_adam(step_size)
 
 
 
