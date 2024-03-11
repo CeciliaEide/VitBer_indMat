@@ -80,9 +80,8 @@ class Attention(Layer):
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-#bruke einsum, dimentions: z = bdn, 
-        calceinsum = np.einsum('bnd,dk,kd,bnd->bnd', np.transpose(z),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
-        self.A = Softmax.forward(calceinsum +D)
+        calceinsum = np.einsum('bnd,dk,kd,bdn->bdn', np.transpose(z, (0, 2, 1)),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
+        self.A = Softmax.forward(calceinsum + D)
         #self.A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_q']['w'])@(self.params['W_k']['w'])@z)+D)
         
         z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@self.A
