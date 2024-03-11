@@ -1,5 +1,8 @@
+#evt. lage en felles med å endre hva man henter av treningsdata med en if-løkke
+
 def TrainingAlgorithmAdding(n_iter):
 
+    import numpy as np
     from data_generators import get_train_test_addition
     from utils import onehot
     from layers import LinearLayer,EmbedPosition,Attention,Softmax,CrossEntropy,FeedForward
@@ -22,7 +25,6 @@ def TrainingAlgorithmAdding(n_iter):
     X = onehot(x,m)
     y = data['y_train'][0]
 
-    
     embed = EmbedPosition(n_max,m,d)
     att1 = Attention(d,k)
     ff1 = FeedForward(d,p)
@@ -30,23 +32,33 @@ def TrainingAlgorithmAdding(n_iter):
     softmax = Softmax()
     loss = CrossEntropy()
 
-    #"manuelt" forward pass (tilsvarende algoritme 1)
-    z0 = embed.forward(X)
-    z1 = att1.forward(z0)
-    z2 = ff1.forward(z1)
-    z = un_embed.forward(z2)
-    Z = softmax.forward(z)
-
     layers = [embed,att1,ff1,un_embed,softmax]
     nn = NeuralNetwork(layers)
 
-    #forward pass tilsvarende algoritme 1
-    Z = nn.forward(X)
+    xs = data['x_train']
+    ys = data['y_train']
 
-    #beregner loss med CrossEntropy
-    L = loss.forward(Z,y)
-    print(L)
+    n_batches = xs.shape[0]
+    n_iters = 100
+    step_size = 0.1
 
-    #backward pass tilsvarende algoritme 2
-    dLdZ = loss.backward()
-    nn.backward(dLdZ)
+    #treningsløkke tilsvarende algoritme 4 (med gradient descent)
+    mean_losses = np.array(n_iters)
+    for j in range(n_iters):
+        losses = []
+        for i in range(n_batches):
+            x = xs[i]
+            y = ys[i]
+
+            X = onehot(x,m)
+            Z = nn.forward(X)
+
+            losses.append(loss.forward(Z,y))
+            dLdZ = loss.backward()
+            nn.backward(dLdZ)
+            nn.step_gd(step_size)
+        mean_loss = np.mean(losses)
+        mean_losses[j] = mean_loss
+        print("Iterasjon ", str(j), " L = ",mean_loss, "") #Kan printe ut
+
+    return nn, mean_losses
