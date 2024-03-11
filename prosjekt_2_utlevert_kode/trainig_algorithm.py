@@ -1,6 +1,6 @@
 #evt. lage en felles med å endre hva man henter av treningsdata med en if-løkke
 
-def TrainingAlgorithmAdding(n_iter):
+def TrainingAlgorithmAdding():
 
     import numpy as np
     from data_generators import get_train_test_addition
@@ -18,7 +18,7 @@ def TrainingAlgorithmAdding(n_iter):
     k = 5
     p = 20
 
-    #henter treningsdata
+    #henter treningsdata - kan ta inn argumenter her avhengig av 
     data = get_train_test_addition(n_digits,samples_per_batch=250,n_batches_train=10)
 
     x = data['x_train'][0]
@@ -56,9 +56,12 @@ def TrainingAlgorithmAdding(n_iter):
             losses.append(loss.forward(Z,y))
             dLdZ = loss.backward()
             nn.backward(dLdZ)
-            nn.step_gd(step_size)
+            nn.step_adam(step_size)
         mean_loss = np.mean(losses)
         mean_losses[j] = mean_loss
         print("Iterasjon ", str(j), " L = ",mean_loss, "") #Kan printe ut
 
     return nn, mean_losses
+
+def prosentSortetRight(nn):
+    
