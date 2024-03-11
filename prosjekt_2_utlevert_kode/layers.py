@@ -151,7 +151,7 @@ class CrossEntropy(Layer):
 
         
 
-    def forward(self,Y_hat,y):
+    def forward(self,Z,y): #Gå fra Z til Y_hat
         self.n = Y_hat.shape[-1]
         m = Y_hat.shape[-2]
 
