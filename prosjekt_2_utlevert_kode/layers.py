@@ -68,6 +68,7 @@ class Attention(Layer):
                        "W_o":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))},
                        "W_v":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))}}
         
+        self.softmax = Softmax()
         self.j = 0
         return
 
@@ -80,11 +81,10 @@ class Attention(Layer):
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-        I = np.einsum('bnd,kd,dk,bdn->bdn', np.transpose(z, (0, 2, 1)),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
-        self.A = Softmax.forward(I + D)
-        #self.A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_q']['w'])@(self.params['W_k']['w'])@z)+D)
+        self.A = self.softmax.forward(np.einsum('bdi,dl,dk,cdj->bij', z, self.params['W_q']['w'],self.params['W_k']['w'],z, optimize = True) + D)
         
-        z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@self.A
+        #z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@self.A
+        z_l = z + np.einsum('dk,dk,bdn,dnn->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A)
         return z_l
 
 
@@ -123,10 +123,9 @@ class Softmax(Layer):
     
     def forward(self,z):
         self.z = z
-        axis = -1
-
-        self.P = np.exp(z - z.max(axis=axis,keepdims=True)) #Lagrer her for å kunne bruke i backward
-        self.Q = np.sum(self.P,axis=axis,keepdims=True)
+       
+        self.P = np.exp(z - z.max(axis=1,keepdims=True)) #Lagrer her for å kunne bruke i backward
+        self.Q = np.sum(self.P,axis=1,keepdims=True)
         eps = 10**-8 #legges til for å unngå divisjon med null
 
         z_l = np.multiply(self.P,(self.Q+eps)**(-1))
@@ -134,7 +133,7 @@ class Softmax(Layer):
         return z_l
 
 
-    def backward(self,grad): #trengs den egentlig?
+    def backward(self,grad): 
 
         S = np.multiply(self.P,((np.multiply(self.Q,self.Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
