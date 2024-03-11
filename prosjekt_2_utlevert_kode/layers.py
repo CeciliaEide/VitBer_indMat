@@ -34,10 +34,10 @@ class Layer:
         for param in self.params:
             self.params[param]['w'] -= alpha*self.params[param]['d']
     
-    def step_adam(self, alpha, j, b_1 = 0.9, b_2 = 0.999): #Ta inn eller lage b1/b2, 
+    def step_adam(self, alpha, j):
         #Variable initialization 
-        #b_1 = 0.9 #first decaying average with proposed default value of 0.9
-        #b_2 = 0.999 #second decaying average with proposed default value of 0.999
+        b_1 = 0.9 #first decaying average with proposed default value of 0.9
+        b_2 = 0.999 #second decaying average with proposed default value of 0.999
         eps = 10**-8 #variable for numerical stability during division
 
         for param in self.params:
@@ -76,18 +76,18 @@ class Attention(Layer):
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-        self.A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_k']['w'])@(self.params['W_q']['w'])@z)+D)
+        self.A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_q']['w'])@(self.params['W_k']['w'])@z)+D)
         
         z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@self.A
         return z_l
 
 
     def backward(self,grad):
+        b = grad.shape[0]
+        
         gOV = np.transpose(self.params['W_v']['w']) @ self.params['W_o']['w'] @ grad
         g_s = Softmax.backward(np.transpose(self.z) * gOV)
-        dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s #/b
-
-        b = grad.shape[0]
+        dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s/b #b her?
 
         #Compute gradient (average over B batches) of loss wrt weight w: (Oppdatere d)
         self.params['W_o']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b
