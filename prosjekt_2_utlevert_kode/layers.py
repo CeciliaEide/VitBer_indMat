@@ -63,10 +63,10 @@ class Attention(Layer):
 
     def __init__(self,d,k,init_scale=0.1):
         #Initialize the parameter dictionary for weight with key "W_.."
-        self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
-                       "W_q":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
-                       "W_o":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
-                       "W_v":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}}
+        self.params = {"W_k":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}, #Bytte M og V også
+                       "W_q":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
+                       "W_o":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
+                       "W_v":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}}
         
         self.j = 0
         return
@@ -80,8 +80,8 @@ class Attention(Layer):
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-        calceinsum = np.einsum('bnd,dk,kd,bdn->bdn', np.transpose(z, (0, 2, 1)),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
-        self.A = Softmax.forward(calceinsum + D)
+        I = np.einsum('bnd,dk,kd,bdn->bdn', np.transpose(z, (0, 2, 1)),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
+        self.A = Softmax.forward(I + D)
         #self.A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_q']['w'])@(self.params['W_k']['w'])@z)+D)
         
         z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@self.A
