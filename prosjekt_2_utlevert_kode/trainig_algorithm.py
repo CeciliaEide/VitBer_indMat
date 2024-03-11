@@ -64,4 +64,6 @@ def TrainingAlgorithmAdding():
     return nn, mean_losses
 
 def prosentSortetRight(nn):
-    
+    prosent = None #Hente et dataset
+
+    return prosent
