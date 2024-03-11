@@ -70,7 +70,7 @@ class Attention(Layer):
         
     def forward(self,z):
         self.z = z
-        n = z.shape[2] #Få pusha noe
+        n = z.shape[0] #Få pusha noe
 
         D = np.zeros((n,n))
         i1,i2 = np.tril_indices(n,-1)
