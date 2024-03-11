@@ -181,8 +181,8 @@ class LinearLayer(Layer):
         #scaled with the init_scale
         self.w = np.random.randn(output_size,input_size)*init_scale
         self.params = {"w":{'w':self.w,
-                            'd':np.zeros_like(self.w)
-                            'M':np.zeros_like(self.w)
+                            'd':np.zeros_like(self.w),
+                            'M':np.zeros_like(self.w),
                             'V':np.zeros_like(self.w)}}
         
 
