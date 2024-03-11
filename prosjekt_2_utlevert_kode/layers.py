@@ -80,7 +80,7 @@ class Attention(Layer):
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-        I = np.einsum('bnd,dk,kd,bdn->bdn', np.transpose(z, (0, 2, 1)),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
+        I = np.einsum('bnd,kd,dk,bdn->bdn', np.transpose(z, (0, 2, 1)),np.transpose(self.params['W_q']['w']),(self.params['W_k']['w']),z)
         self.A = Softmax.forward(I + D)
         #self.A = Softmax.forward((np.transpose(z)@np.transpose(self.params['W_q']['w'])@(self.params['W_k']['w'])@z)+D)
         
@@ -154,8 +154,8 @@ class CrossEntropy(Layer):
         
 
     def forward(self,Y_hat,y):
-        self.n = shape.Y_hat[-1]
-        m = shape.Y_hat[-2]
+        self.n = Y_hat.shape[-1]
+        m = Y_hat.shape[-2]
 
         self.Y = onehot(y) 
         self.Y_hat = Y_hat
