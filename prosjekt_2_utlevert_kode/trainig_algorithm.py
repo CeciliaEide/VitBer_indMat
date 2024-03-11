@@ -19,7 +19,7 @@ def TrainingAlgorithmAdding(n_iter):
     p = 20
 
     #henter treningsdata
-    data = get_train_test_addition(n_digits,samples_per_batch=100,n_batches_train=4)
+    data = get_train_test_addition(n_digits,samples_per_batch=250,n_batches_train=10)
 
     x = data['x_train'][0]
     X = onehot(x,m)
@@ -43,7 +43,7 @@ def TrainingAlgorithmAdding(n_iter):
     step_size = 0.1
 
     #treningsløkke tilsvarende algoritme 4 (med gradient descent)
-    mean_losses = np.array(n_iters)
+    mean_losses = np.zeros(n_iters)
     for j in range(n_iters):
         losses = []
         for i in range(n_batches):
