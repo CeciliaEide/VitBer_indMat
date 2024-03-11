@@ -122,7 +122,6 @@ class Softmax(Layer):
     
     def forward(self,z):
         self.z = z
-       
         self.P = np.exp(z - z.max(axis=1,keepdims=True)) #Lagrer her for å kunne bruke i backward
         self.Q = np.sum(self.P,axis=1,keepdims=True)
         eps = 10**-8 #legges til for å unngå divisjon med null
@@ -137,7 +136,7 @@ class Softmax(Layer):
         S = self.P/(np.multiply(self.Q,self.Q)+eps)
         eps = 10**-8 #legges til for å unngå divisjon med null
 
-        dLdz = np.multiply(grad.forward(self.z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P)
+        dLdz = np.multiply(grad.forward(self.z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P) #axis = 0?
         return dLdz
 
 
@@ -158,16 +157,16 @@ class CrossEntropy(Layer):
 
         self.Y = onehot(y,m) 
         self.Y_hat = Z[:,:,-r:]
-
         one = np.ones(m)
+
         ###prøvd å fikse for å få riktig dim i utregning 
         #remove = Y_hat.shape[-1] - self.Y.shape[-1]
         #self.Y_hatNew = Y_hat[:,:,:-remove]
-        ###
+
         p = np.einsum('m,bmj->bm', one, np.multiply(self.Y_hat,self.Y), optimize = True) #bmn
         q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
 
-        L = (1/self.n)*((q).sum(axis=0))#axis != 1?
+        L = (1/self.n)*((q).sum(axis=0))#axis != 1? #evt. len q
 
         return L
 
