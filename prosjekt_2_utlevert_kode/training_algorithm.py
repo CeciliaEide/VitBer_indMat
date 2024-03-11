@@ -59,11 +59,18 @@ def TrainingAlgorithmAdding():
             nn.step_adam(step_size)
         mean_loss = np.mean(losses)
         mean_losses[j] = mean_loss
-        print("Iterasjon ", str(j), " L = ",mean_loss, "") #Kan printe ut
+        print("Iterasjon ", str(j), " L = ",mean_loss, "") #Kan fjernes senere, bruker bare mean_losses
 
     return nn, mean_losses
 
 def prosentSortetRight(nn):
-    prosent = None #Hente et dataset
+    from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
+    
+    x = None #hente data fra funk over, vil klassen neural network være med videre? Evt. sette rett inn
+    y = None
+
+    y_hat = nn.forward(x)
+    like = y==y_hat
+    prosent = np.sum(like)/len(y)
 
     return prosent
