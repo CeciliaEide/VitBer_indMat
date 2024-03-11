@@ -172,7 +172,7 @@ class CrossEntropy(Layer):
 
     def backward(self):
         eps = 10**-8
-        dLdY = (1/self.n)*(np.multiply(self.Y,self.Y_hat+eps)) #Indekser
+        dLdY = (1/self.n)*(np.multiply(self.Y,self.Y_hat+eps)) #Indekser og n
         return dLdY
 
 
