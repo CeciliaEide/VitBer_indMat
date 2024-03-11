@@ -46,7 +46,7 @@ class Layer:
             M_j = b_1*self.params[param]['M'] + (1-b_1)*G_j
             V_j = b_2*self.params[param]['V'] + (1-b_2)*np.multiply(G_j,G_j)
 
-            self.params[param]['M'] = M_j #Opdate M
+            self.params[param]['M'] = M_j #Update M
             self.params[param]['V'] = V_j #Update V
             
             M_j_hat = (1/(1-(b_1)**j))*M_j
@@ -68,7 +68,7 @@ class Attention(Layer):
         return
 
         
-    def forward(self,z,n):
+    def forward(self,z):
         self.z = z
         
         D = np.zeros((n,n))
@@ -84,7 +84,7 @@ class Attention(Layer):
     def backward(self,grad):
         gOV = np.transpose(self.params['W_v']['w']) @ self.params['W_o']['w'] @ grad
         g_s = Softmax.backward(np.transpose(self.z) * gOV)
-        dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s
+        dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s #/b
 
         b = grad.shape[0]
 
@@ -96,7 +96,7 @@ class Attention(Layer):
 
         #Return gradient of loss wrt input of layer
         #dL/dw = w@grad.T
-        return np.einsum('od,bon->bdn',self.params['w']['w'],grad) #dLdz istedenfor?
+        return dLdz
     
 
 
@@ -132,7 +132,7 @@ class Softmax(Layer):
         S = np.multiply(self.P,((np.multiply(self.Q,self.Q)+eps)**-1))
         eps = 10**-8 #legges til for å unngå divisjon med null
 
-        dLdz = np.multiply(grad.forward(z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P)
+        dLdz = np.multiply(grad.forward(z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P) #/b
         return dLdz
 
 
