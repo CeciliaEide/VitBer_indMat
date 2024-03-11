@@ -320,6 +320,10 @@ class EmbedPosition(Layer):
         #which calls the step_gd() of the base class
         #and does gd for the paramters in the params dict
         super().step_gd(step_size)
+    
+    def step_adam(step_size):
+        self.embed.step_adam(step_size)
+        super().step_adam(step_size) #Hvorfor må vi ha det med?
 
 
 
