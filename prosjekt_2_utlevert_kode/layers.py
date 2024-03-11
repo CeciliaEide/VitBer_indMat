@@ -126,16 +126,16 @@ class Softmax(Layer):
         self.Q = np.sum(self.P,axis=1,keepdims=True)
         eps = 10**-8 #legges til for å unngå divisjon med null
 
-        z_l = self.P/(self.Q+eps)
+        self.z_l = self.P/(self.Q+eps)
 
-        return z_l
+        return self.z_l
 
 
     def backward(self,grad): 
         eps = 10**-8 #legges til for å unngå divisjon med null
         S = self.P/(np.multiply(self.Q,self.Q)+eps)
         
-        dLdz = np.multiply(grad.forward(self.z))-np.multiply((np.multiply(grad,S)).sum(axis=0),self.P) #axis = 0? Feil feil
+        dLdz = np.multiply(grad, self.z_l) - np.multiply((np.multiply(grad,S)).sum(axis=1), self.P) #Se videre på
         return dLdz
 
 
