@@ -63,10 +63,10 @@ class Attention(Layer):
 
     def __init__(self,d,k,init_scale=0.1):
         #Initialize the parameter dictionary for weight with key "W_.."
-        self.params = {"W_k":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}, #Bytte M og V også
-                       "W_q":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
-                       "W_o":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
-                       "W_v":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}}
+        self.params = {"W_k":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))}, #Bytte M og V også
+                       "W_q":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))},
+                       "W_o":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))},
+                       "W_v":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))}}
         
         self.j = 0
         return
