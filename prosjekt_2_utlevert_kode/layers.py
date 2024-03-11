@@ -82,9 +82,8 @@ class Attention(Layer):
         D[i1,i2] -= np.inf
 
         self.A = self.softmax.forward(np.einsum('bdi,dl,dk,cdj->bij', z, self.params['W_q']['w'],self.params['W_k']['w'],z, optimize = True) + D)
-        
-        #z_l = z + np.transpose(self.params['W_o']['w'])@self.params['W_v']['w']@z@self.A
-        z_l = z + np.einsum('dk,dk,bdn,dnn->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A)
+    
+        z_l = z + np.einsum('dk,dl,bdn,bij->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A, optimize = True)
         return z_l
 
 
@@ -156,10 +155,10 @@ class CrossEntropy(Layer):
         self.n = Y_hat.shape[-1]
         m = Y_hat.shape[-2]
 
-        self.Y = onehot(y) 
+        self.Y = onehot(y,m) 
         self.Y_hat = Y_hat
         one = np.ones(m)
-        p = one*np.multiply(Y_hat,self.Y) 
+        p = np.einsum('m,mn->mn', one, np.multiply(Y_hat,self.Y), optimize = True) #bmn
         q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
 
         L = (1/self.n)*((q).sum(axis=0))
