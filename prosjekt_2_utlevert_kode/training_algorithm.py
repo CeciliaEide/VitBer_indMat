@@ -77,11 +77,14 @@ def TrainingAlgorithm(problem):
 def prosentSortetRight(nn):
     from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
     
-    x = None #hente data fra funk over, vil klassen neural network være med videre? Evt. sette rett inn
-    y = None
+    length = 4 #Endre så den henter denne verdien på en måte senere
+    antall_forsok = 500
+    velykket_forsok = 0
+    
+    for i in range(antall_forsok):
+        x, y = data = get_xy_sort(length)
+        y_hat = nn.forward(x) #Finne y_har fra det nevrale nettverket
+        if y_hat == y:
+            velykket_forsok += 1
 
-    y_hat = nn.forward(x)
-    like = y==y_hat
-    prosent = np.sum(like)/len(y)
-
-    return prosent
+    return velykket_forsok/antall_forsok
