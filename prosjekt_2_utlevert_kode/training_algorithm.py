@@ -32,10 +32,6 @@ def TrainingAlgorithm(problem):
         data = get_train_test_sorting(length, num_ints, samples_per_batch = 250,n_batches_train = 10, n_batches_test = 1)
         n_max = length
 
-    x = data['x_train'][0]
-    X = onehot(x,m)
-    y = data['y_train'][0]
-
     embed = EmbedPosition(n_max,m,d)
     att1 = Attention(d,k)
     ff1 = FeedForward(d,p)
