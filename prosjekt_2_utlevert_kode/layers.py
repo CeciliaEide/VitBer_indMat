@@ -96,7 +96,7 @@ class Attention(Layer):
         print(gOV.shape)
         h1 = np.einsum('bdn,kij->bdn',gOV,np.transpose(self.A), optimize=True)
         h2 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_k']['w'],self.params['W_q']['w'],self.z,g_s, optimize=True)
-        h3 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_q']['w'],self.params['W_k']['w'],self.z,np.transpose(g_s), optimize=True)
+        h3 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_q']['w'],self.params['W_k']['w'],self.z,np.transpose(g_s, (0, 2, 1)), optimize=True)
         dLdz = grad + h1 + h2 + h3
 
         #Compute gradient (average over B batches) of loss wrt weight w: #Gjøre til 2D array i einsum
