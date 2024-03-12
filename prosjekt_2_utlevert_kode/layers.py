@@ -81,9 +81,9 @@ class Attention(Layer):
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-        self.A = self.softmax.forward(np.einsum('bdn,kl,kl,bdn->bnn', z, self.params['W_q']['w'],self.params['W_k']['w'],z, optimize = True) + D)
+        self.A = self.softmax.forward(np.einsum('bdi,kd,kd,bdn->bin', z, self.params['W_q']['w'],self.params['W_k']['w'],z, optimize = True) + D)
     
-        z_l = z + np.einsum('kl,kl,bdn,bin->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A, optimize=True)
+        z_l = z + np.einsum('kd,kd,bdn,bin->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A, optimize=True)
         return z_l
 
 
