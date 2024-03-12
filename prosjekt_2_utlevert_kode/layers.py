@@ -174,11 +174,11 @@ class CrossEntropy(Layer):
 
     def backward(self):
         eps = 10**-8
-        #legge til null
+        
         padded_Y = np.zeros_like(self.Z)
         padded_Y[:,:,-self.y.shape[-1]:] = self.Y #få Y tilbake i samme dimensjoner som Z
 
-        dLdY = (1/self.n)*(np.multiply(padded_Y,self.Z+eps)) #Indekser og n
+        dLdY = -(1/self.n)*(padded_Y/(self.Z+eps)) #Indekser og n
         return dLdY
 
 
