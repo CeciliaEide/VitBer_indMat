@@ -32,13 +32,11 @@ def TrainingAlgorithmAdding(problem):
         #henter treningsdata - kan ta inn argumenter her avhengig av 
         data = get_train_test_sorting(length, num_ints, samples_per_batch = 250,n_batches_train = 10)
 
-
-
     x = data['x_train'][0]
     X = onehot(x,m)
     y = data['y_train'][0]
 
-    embed = EmbedPosition(n_max,m,d)
+    embed = EmbedPosition(n_max,m,d) #hva blir n_max for sorting? lik r?
     att1 = Attention(d,k)
     ff1 = FeedForward(d,p)
     un_embed = LinearLayer(d,m)
