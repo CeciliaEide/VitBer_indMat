@@ -96,7 +96,7 @@ class Attention(Layer):
         h1 = np.einsum('bdn,BnN->bdN',gOV,np.transpose(self.A,(0,2,1)), optimize=True)
         h2 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_k']['w'],self.params['W_q']['w'],self.z,g_s, optimize=True)
         print(h1.shape, h2.shape)
-        h3 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_q']['w'],self.params['W_k']['w'],self.z,np.transpose(g_s, (0, 2, 1)), optimize=True)
+        h3 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_q']['w'],self.params['W_k']['w'],self.z,np.transpose(g_s, (0,2,1)), optimize=True)
         print(h3.shape)
         dLdz = grad + h1 + h2 + h3
 
