@@ -32,10 +32,6 @@ def TrainingAlgorithm(problem):
         data = get_train_test_sorting(length, num_ints, samples_per_batch = 250,n_batches_train = 10, n_batches_test = 1)
         n_max = length*2 - 1
 
-    x = data['x_train'][0]
-    X = onehot(x,m)
-    y = data['y_train'][0]
-
     embed = EmbedPosition(n_max,m,d)
     att1 = Attention(d,k)
     ff1 = FeedForward(d,p)
@@ -83,7 +79,7 @@ def prosentSortetRight(nn):
     
     for i in range(antall_forsok):
         x, y = data = get_xy_sort(length)
-        y_hat = nn.forward(x) #Finne y_har fra det nevrale nettverket
+        y_hat = nn.forward(x) #Finne y_har fra det nevrale nettverket - se på hvordan man kanskje må kjøre den flere ganger
         if y_hat == y:
             velykket_forsok += 1
 
