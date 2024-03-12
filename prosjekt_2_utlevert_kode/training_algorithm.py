@@ -79,7 +79,7 @@ def prosentSortetRight(nn):
     
     for i in range(antall_forsok):
         x, y = data = get_xy_sort(length)
-        y_hat = nn.forward(x) #Finne y_har fra det nevrale nettverket
+        y_hat = nn.forward(x) #Finne y_har fra det nevrale nettverket - se på hvordan man kanskje må kjøre den flere ganger
         if y_hat == y:
             velykket_forsok += 1
 
