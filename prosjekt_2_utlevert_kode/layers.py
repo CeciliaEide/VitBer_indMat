@@ -98,10 +98,15 @@ class Attention(Layer):
         dLdz = grad + h1 + h2 + h3
 
         #Compute gradient (average over B batches) of loss wrt weight w: #Gjøre til 2D array i einsum
-        self.params['W_o']['d'] = np.einsum('kd,bdn,nn,bdn->kd',self.params['W_v']['w'],self.z,self.A,np.transpose(grad), optimize=True)/b
-        self.params['W_v']['d'] = np.einsum('kd,bdn,nn,bdn->kd',self.params['W_o']['w'],grad,np.transpose(self.A),self.z, optimize=True)/b
-        self.params['W_k']['d'] = np.einsum('kd,bdn,nn,bdn->kd',self.params['W_q']['w'],self.z,g_s,np.transpose(self.z), optimize=True)/b
-        self.params['W_q']['d'] = np.einsum('kd,bdn,nn,bdn->kd',self.params['W_k']['w'],self.z,np.transpose(g_s),np.transpose(self.z), optimize=True)/b
+        print(self.params['W_v']['w'].shape)
+        print(self.z.shape)
+        print(self.A.shape)
+        print(grad.shape)
+        
+        self.params['W_o']['d'] = np.einsum('kd,bdn,bnn,bdn->kd',self.params['W_v']['w'],self.z,self.A,grad, optimize=True)/b
+        self.params['W_v']['d'] = np.einsum('kd,bdn,bnn,bdn->kd',self.params['W_o']['w'],grad,np.transpose(self.A, (0, 2, 1)),self.z, optimize=True)/b
+        self.params['W_k']['d'] = np.einsum('kd,bdn,bnn,bdn->kd',self.params['W_q']['w'],self.z,g_s,self.z, optimize=True)/b
+        self.params['W_q']['d'] = np.einsum('kd,bdn,bnn,bdn->kd',self.params['W_k']['w'],self.z,np.transpose(g_s, (0, 2, 1)),self.z, optimize=True)/b
 
         return dLdz
         
