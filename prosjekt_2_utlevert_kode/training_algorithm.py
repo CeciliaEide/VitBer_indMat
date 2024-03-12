@@ -47,7 +47,7 @@ def TrainingAlgorithm(problem):
 
     n_batches = xs.shape[0]
     n_iters = 100
-    step_size = 0.1
+    step_size = 0.01
 
     #treningsløkke tilsvarende algoritme 4 (med gradient descent)
     mean_losses = np.zeros(n_iters)
