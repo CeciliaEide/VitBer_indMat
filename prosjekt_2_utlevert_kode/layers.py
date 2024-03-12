@@ -138,7 +138,7 @@ class Softmax(Layer):
         eps = 10**-8 #legges til for å unngå divisjon med null
         S = self.P/(np.multiply(self.Q,self.Q)+eps)
         
-        k1 = np.multiply(grad, self.z_l) #grad og zl har forskjellige dimensjoner
+        k1 = np.multiply(grad, self.z_l) 
         k2 = np.multiply(np.sum(np.multiply(grad,S),axis=1,keepdims=True),  self.P)
         #dLdz = np.multiply(grad, self.z_l) - np.multiply((np.multiply(grad,S)).sum(axis=1), self.P) #Se videre på
         return k1-k2
