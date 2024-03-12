@@ -79,7 +79,30 @@ def prosentSortetRight(nn):
     
     for i in range(antall_forsok):
         x, y = data = get_xy_sort(length)
-        y_hat = nn.forward(x) #Finne y_har fra det nevrale nettverket - se på hvordan man kanskje må kjøre den flere ganger
+        X = onehot(x)
+        for i in range(3):
+        y_hat = nn.forward(X) #Finne y_har fra det nevrale nettverket - se på hvordan man kanskje må kjøre den flere ganger
+        if y_hat == y:
+            velykket_forsok += 1
+
+    return velykket_forsok/antall_forsok
+
+#Lage funksjon for å lage data
+
+def prosentAddedRight(nn):
+    from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
+    
+    length = 4 #Endre så den henter denne verdien på en måte senere
+    antall_forsok = 500
+    velykket_forsok = 0
+    
+    for i in range(antall_forsok):
+        x, y = data = get_xy_sort(length)
+        X = onehot(x)
+        for i in range(3):
+            x.append(nn.forward(X))
+            X = onehot(x)
+        y_hat = x[:-3] #De tre siste elementene
         if y_hat == y:
             velykket_forsok += 1
 
