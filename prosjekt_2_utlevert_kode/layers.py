@@ -163,6 +163,7 @@ class CrossEntropy(Layer):
         self.n = Z.shape[-1]
         m = Z.shape[-2]
         r = y.shape[1]
+        eps = 10**(-8)
 
         self.Y = onehot(y,m) 
         self.Y_hat = Z[:,:,-r:]
@@ -171,7 +172,7 @@ class CrossEntropy(Layer):
         #p = np.einsum('m,bmj->bj', one, np.multiply(self.Y_hat,self.Y), optimize = True) #bmn, se på indekser
         p = np.sum(np.multiply(self.Y_hat,self.Y),axis=1)
 
-        q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
+        q = -np.log(p+eps) #naturlig eller tier logaritme? /Dele på noe?
 
         L = (1/self.n*b)*(q.sum(axis=0))#se på n
 
