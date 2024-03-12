@@ -40,7 +40,7 @@ class Layer:
         #Variable initialization 
         b_1 = 0.9 #first decaying average with proposed default value of 0.9
         b_2 = 0.999 #second decaying average with proposed default value of 0.999
-        eps = 10**-8 #variable for numerical stability during division
+        eps = 10**(-8) #variable for numerical stability during division
 
         for param in self.params:
             G_j = self.params[param]['d']
@@ -83,7 +83,7 @@ class Attention(Layer):
 
         self.A = self.softmax.forward(np.einsum('bdi,kd,kd,bdn->bin', z, self.params['W_q']['w'],self.params['W_k']['w'],z, optimize = True) + D)
     
-        z_l = z + np.einsum('kd,kd,bdn,bin->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A, optimize=True)
+        z_l = z + np.einsum('kd,kD,bDn,bNn->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A, optimize=True)
         return z_l
 
 
@@ -164,7 +164,9 @@ class CrossEntropy(Layer):
         self.Y_hat = Z[:,:,-r:]
         one = np.ones(m)
 
-        p = np.einsum('m,bmj->bj', one, np.multiply(self.Y_hat,self.Y), optimize = True) #bmn, se på indekser
+        #p = np.einsum('m,bmj->bj', one, np.multiply(self.Y_hat,self.Y), optimize = True) #bmn, se på indekser
+        p = np.sum(np.multiply(self.Y_hat,self.Y),axis=1)
+
         q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
 
         L = (1/self.n)*(q.sum(axis=0))#se på n
