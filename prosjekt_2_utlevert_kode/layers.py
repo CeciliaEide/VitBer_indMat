@@ -123,7 +123,6 @@ class Softmax(Layer):
         return
         
 
-    
     def forward(self,z):
         self.z = z
         self.P = np.exp(z - z.max(axis=1,keepdims=True)) #Lagrer her for å kunne bruke i backward
@@ -154,7 +153,6 @@ class CrossEntropy(Layer):
         return
 
         
-
     def forward(self,Z,y):
         self.Z = Z
         self.y = y
