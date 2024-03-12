@@ -168,7 +168,7 @@ class CrossEntropy(Layer):
         p = np.sum(np.multiply(self.Y_hat,self.Y),axis=1)
         q = -np.log(p) 
 
-        L = (1/self.n*b)*(np.sum(q))#se på n
+        L = (1/(self.n*b))*(np.sum(q))#se på n
 
         return L
 
