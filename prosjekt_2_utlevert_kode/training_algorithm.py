@@ -1,3 +1,4 @@
+import numpy as np
 
 def TrainingAlgorithm(problem):
 
@@ -70,9 +71,10 @@ def TrainingAlgorithm(problem):
 
     return nn, mean_losses
 
-'''
+
 def prosentSortetRight(nn, length, antall_forsok):
     from data_generators import get_xy_sort
+    from utils import onehot
     
     velykkede_forsok = 0
     
@@ -93,6 +95,7 @@ def prosentSortetRight(nn, length, antall_forsok):
 
 def prosentAddedRight(nn, antall_forsok):
     from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
+    from utils import onehot
     
     length = 4 #Summere to to-sifrede tall
     
@@ -100,9 +103,10 @@ def prosentAddedRight(nn, antall_forsok):
     
     for i in range(antall_forsok):
         x = np.random.randint(0, 10, size=4)
-        tall1 = arr[0] * 10 + arr[1]
-        tall2 = arr[2] * 10 + arr[3]
-        y = np.array([summen%100, (summen%10)//10, summen//100]
+        tall1 = x[0] * 10 + x[1]
+        tall2 = x[2] * 10 + x[3]
+        summen = tall1 + tall2
+        y = np.array([summen%100, (summen%10)//10, summen//100])
 
         X = onehot(x)
         for i in range(3):
@@ -114,4 +118,3 @@ def prosentAddedRight(nn, antall_forsok):
             velykket_forsok += 1
 
     return velykket_forsok/antall_forsok
-'''
