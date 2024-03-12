@@ -30,7 +30,7 @@ def TrainingAlgorithm(problem):
 
         #henter treningsdata - kan ta inn argumenter her avhengig av 
         data = get_train_test_sorting(length, num_ints, samples_per_batch = 250,n_batches_train = 10, n_batches_test = 1)
-        n_max = length
+        n_max = length*2 - 1
 
     x = data['x_train'][0]
     X = onehot(x,m)
