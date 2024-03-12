@@ -70,6 +70,7 @@ def TrainingAlgorithm(problem):
 
     return nn, mean_losses
 
+'''
 def prosentSortetRight(nn):
     from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
     
@@ -107,3 +108,4 @@ def prosentAddedRight(nn):
             velykket_forsok += 1
 
     return velykket_forsok/antall_forsok
+'''
