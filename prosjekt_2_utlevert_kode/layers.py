@@ -91,10 +91,10 @@ class Attention(Layer):
         b = grad.shape[0]
         
         gOV = np.einsum('kd,kD,bDn->bdn', self.params['W_v']['w'], self.params['W_o']['w'], grad, optimize = True)
-        g_s = self.softmax.backward(np.einsum('bdn,bdN->bNn',self.z,gOV,optimize=True))
+        g_s = self.softmax.backward(np.einsum('bdn,bdN->bnN',self.z,gOV,optimize=True))
         h1 = np.einsum('bdn,BnN->bdN',gOV,np.transpose(self.A,(0,2,1)), optimize=True)
-        h2 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_k']['w'],self.params['W_q']['w'],self.z,g_s, optimize=True)
-        h3 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_q']['w'],self.params['W_k']['w'],self.z,np.transpose(g_s, (0, 2, 1)), optimize=True)
+        h2 = np.einsum('kd,kD,bDn,bnN->bdN',self.params['W_k']['w'],self.params['W_q']['w'],self.z,g_s, optimize=True)
+        h3 = np.einsum('kd,kD,bDn,bnN->bdN',self.params['W_q']['w'],self.params['W_k']['w'],self.z,np.transpose(g_s, (0, 2, 1)), optimize=True)
         dLdz = grad + h1 + h2 + h3
 
         #Compute gradient (average over B batches) of loss wrt weight w: #Gjøre til 2D array i einsum
@@ -138,10 +138,10 @@ class Softmax(Layer):
         eps = 10**-8 #legges til for å unngå divisjon med null
         S = self.P/(np.multiply(self.Q,self.Q)+eps)
         
-        step1 = np.multiply(grad, self.z_l) #grad og zl har forskjellige dimensjoner
-        step2 = np.multiply(np.sum(np.multiply(grad,S),axis=1,keepdims=True),  self.P)
+        k1 = np.multiply(grad, self.z_l) #grad og zl har forskjellige dimensjoner
+        k2 = np.multiply(np.sum(np.multiply(grad,S),axis=1,keepdims=True),  self.P)
         #dLdz = np.multiply(grad, self.z_l) - np.multiply((np.multiply(grad,S)).sum(axis=1), self.P) #Se videre på
-        return step1-step2
+        return k1-k2
 
 
 
@@ -163,14 +163,11 @@ class CrossEntropy(Layer):
 
         self.Y = onehot(y,m) 
         self.Y_hat = Z[:,:,-r:]
-        one = np.ones(m)
 
-        #p = np.einsum('m,bmj->bj', one, np.multiply(self.Y_hat,self.Y), optimize = True) #bmn, se på indekser
         p = np.sum(np.multiply(self.Y_hat,self.Y),axis=1)
+        q = -np.log(p) 
 
-        q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
-
-        L = (1/self.n*b)*(q.sum(axis=0))#se på n
+        L = (1/(self.n*b))*(np.sum(q))
 
         return L
 
@@ -179,10 +176,7 @@ class CrossEntropy(Layer):
         eps = 10**-8
         #legge til null
         padded_Y = np.zeros_like(self.Z)
-        padded_Y[:,:,-self.y.shape[-1]:] = self.Y
-
-        #få Y tilbake i samme dimensjoner som Z
-
+        padded_Y[:,:,-self.y.shape[-1]:] = self.Y #få Y tilbake i samme dimensjoner som Z
 
         dLdY = (1/self.n)*(np.multiply(padded_Y,self.Z+eps)) #Indekser og n
         return dLdY

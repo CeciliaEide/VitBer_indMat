@@ -1,3 +1,4 @@
+import numpy as np
 
 def TrainingAlgorithm(problem):
 
@@ -47,7 +48,7 @@ def TrainingAlgorithm(problem):
 
     n_batches = xs.shape[0]
     n_iters = 100
-    step_size = 0.1
+    step_size = 0.01
 
     #treningsløkke tilsvarende algoritme 4 (med gradient descent)
     mean_losses = np.zeros(n_iters)
@@ -70,42 +71,50 @@ def TrainingAlgorithm(problem):
 
     return nn, mean_losses
 
-'''
-def prosentSortetRight(nn):
-    from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
+
+def prosentSortetRight(nn, length, antall_forsok):
+    from data_generators import get_xy_sort
+    from utils import onehot
     
-    length = 4 #Endre så den henter denne verdien på en måte senere
-    antall_forsok = 500
-    velykket_forsok = 0
+    velykkede_forsok = 0
     
     for i in range(antall_forsok):
         x, y = data = get_xy_sort(length)
         X = onehot(x)
-        for i in range(3):
-        y_hat = nn.forward(X) #Finne y_har fra det nevrale nettverket - se på hvordan man kanskje må kjøre den flere ganger
-        if y_hat == y:
-            velykket_forsok += 1
-
-    return velykket_forsok/antall_forsok
-
-#Lage funksjon for å lage data
-
-def prosentAddedRight(nn):
-    from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
-    
-    length = 4 #Endre så den henter denne verdien på en måte senere
-    antall_forsok = 500
-    velykket_forsok = 0
-    
-    for i in range(antall_forsok):
-        x, y = data = get_xy_sort(length)
-        X = onehot(x)
-        for i in range(3):
-            x.append(nn.forward(X))
+        for i in range(length):
+            Z = nn.forward(X)
+            x.append(Z[-1:])
             X = onehot(x)
-        y_hat = x[:-3] #De tre siste elementene
+
+        y_hat = x[-length:]
+        if y_hat == y:
+            velykkede_forsok += 1
+
+    return velykkede_forsok/antall_forsok
+
+
+def prosentAddedRight(nn, antall_forsok):
+    from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
+    from utils import onehot
+    
+    length = 4 #Summere to to-sifrede tall
+    
+    velykkede_forsok = 0
+    
+    for i in range(antall_forsok):
+        x = np.random.randint(0, 10, size=4)
+        tall1 = x[0] * 10 + x[1]
+        tall2 = x[2] * 10 + x[3]
+        summen = tall1 + tall2
+        y = np.array([summen%100, (summen%10)//10, summen//100])
+
+        X = onehot(x)
+        for i in range(3):
+            Z = nn.forward(X)
+            x.append(Z[-1:])
+            X = onehot(x)
+        y_hat = x[-3:]
         if y_hat == y:
             velykket_forsok += 1
 
     return velykket_forsok/antall_forsok
-'''
