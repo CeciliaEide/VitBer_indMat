@@ -102,10 +102,10 @@ class Attention(Layer):
 
         #Compute gradient (average over B batches) of loss wrt weight w: #Gjøre til 2D array i einsum
         
-        self.params['W_o']['d'] = np.einsum('kd,bdn,bnn,bdn->kd',self.params['W_v']['w'],self.z,self.A,grad, optimize=True)/b
-        self.params['W_v']['d'] = np.einsum('kd,bdn,bnn,bdn->kd',self.params['W_o']['w'],grad,np.transpose(self.A, (0, 2, 1)),self.z, optimize=True)/b
-        self.params['W_k']['d'] = np.einsum('kd,bdn,bnn,bdn->kd',self.params['W_q']['w'],self.z,g_s,self.z, optimize=True)/b
-        self.params['W_q']['d'] = np.einsum('kd,bdn,bnn,bdn->kd',self.params['W_k']['w'],self.z,np.transpose(g_s, (0, 2, 1)),self.z, optimize=True)/b
+        self.params['W_o']['d'] = np.einsum('kd,bdN,bNn,bdn->kd',self.params['W_v']['w'],self.z,self.A,grad, optimize=True)/b
+        self.params['W_v']['d'] = np.einsum('kd,bdN,bNn,bdn->kd',self.params['W_o']['w'],grad,np.transpose(self.A, (0, 2, 1)),self.z, optimize=True)/b
+        self.params['W_k']['d'] = np.einsum('kd,bdN,bNn,bdn->kd',self.params['W_q']['w'],self.z,g_s,self.z, optimize=True)/b
+        self.params['W_q']['d'] = np.einsum('kd,bdN,bNn,bdn->kd',self.params['W_k']['w'],self.z,np.transpose(g_s, (0, 2, 1)),self.z, optimize=True)/b
 
         return dLdz
         
@@ -157,6 +157,7 @@ class CrossEntropy(Layer):
 
         
     def forward(self,Z,y):
+        b = Z.shape[0]
         self.Z = Z
         self.y = y
         self.n = Z.shape[-1]
@@ -172,7 +173,7 @@ class CrossEntropy(Layer):
 
         q = -np.log(p) #naturlig eller tier logaritme? /Dele på noe?
 
-        L = (1/self.n)*(q.sum(axis=0))#se på n
+        L = (1/self.n*b)*(q.sum(axis=0))#se på n
 
         return L
 
