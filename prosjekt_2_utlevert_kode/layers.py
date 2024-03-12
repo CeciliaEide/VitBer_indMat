@@ -163,12 +163,11 @@ class CrossEntropy(Layer):
 
         self.Y = onehot(y,m) 
         self.Y_hat = Z[:,:,-r:]
-        one = np.ones(m)
 
         p = np.sum(np.multiply(self.Y_hat,self.Y),axis=1)
         q = -np.log(p) 
 
-        L = (1/(self.n*b))*(np.sum(q))#se på n
+        L = (1/(self.n*b))*(np.sum(q))
 
         return L
 
