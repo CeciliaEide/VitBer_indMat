@@ -88,7 +88,6 @@ def prosentSortetRight(nn):
 
     return velykket_forsok/antall_forsok
 
-#Lage funksjon for å lage data
 
 def prosentAddedRight(nn):
     from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
@@ -98,12 +97,17 @@ def prosentAddedRight(nn):
     velykket_forsok = 0
     
     for i in range(antall_forsok):
-        x, y = data = get_xy_sort(length)
+        x = np.random.randint(0, 10, size=4)
+        tall1 = arr[0] * 10 + arr[1]
+        tall2 = arr[2] * 10 + arr[3]
+        y = np.array([summen%100, (summen%10)//10, summen//100]
+
         X = onehot(x)
         for i in range(3):
-            x.append(nn.forward(X))
+            Z = nn.forward(X)
+            x.append(Z[-1:])
             X = onehot(x)
-        y_hat = x[:-3] #De tre siste elementene
+        y_hat = x[-3:]
         if y_hat == y:
             velykket_forsok += 1
 
