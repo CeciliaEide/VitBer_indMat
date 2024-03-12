@@ -92,13 +92,15 @@ class Attention(Layer):
         
         gOV = np.einsum('kd,kd,bdn->bdn', self.params['W_v']['w'], self.params['W_o']['w'], grad, optimize = True)
         g_s = self.softmax.backward(np.einsum('bdi,bdn->bin',self.z,gOV,optimize=True))
-        h1 = np.einsum('bdn,nn->bdn',gOV,np.transpose(self.A), optimize=True)
-        h2 = np.einsum('kd,kd,bdn,bdn->bdn',self.params['W_k']['w'],self.params['W_q']['w'],self.z,g_s, optimize=True)
-        h3 = np.einsum('kd,kd,bdn,bdn->bdn',self.params['W_q']['w'],self.params['W_k']['w'],self.z,g_s, optimize=True)
+        print(self.A.shape)
+        print(gOV.shape)
+        h1 = np.einsum('bdn,kij->bdn',gOV,np.transpose(self.A), optimize=True)
+        h2 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_k']['w'],self.params['W_q']['w'],self.z,g_s, optimize=True)
+        h3 = np.einsum('kd,kd,bdn,bin->bdn',self.params['W_q']['w'],self.params['W_k']['w'],self.z,np.transpose(g_s, (0, 2, 1)), optimize=True)
         dLdz = grad + h1 + h2 + h3
 
         #Compute gradient (average over B batches) of loss wrt weight w: #Gjøre til 2D array i einsum
-        self.params['W_o']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b
+        self.params['W_o']['d'] = np.einsum('kd,bdn,nn,bdn->kd',self.params['W_v']['w'],self.z,self.A,np.transpose(grad), optimize=True)/b
         self.params['W_v']['d'] = ((self.params['W_o']['w']) @ grad @ np.transpose(self.A) @ np.transpose(self.z))/b
         self.params['W_k']['d'] = ((self.params['W_q']['w']) @ self.z @ g_s @ np.transpose(self.z))/b
         self.params['W_q']['d'] = ((self.params['W_k']['w']) @ self.z @np.transpose(g_s) @ np.transpose(self.z))/b
