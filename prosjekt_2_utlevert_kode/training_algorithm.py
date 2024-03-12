@@ -26,10 +26,10 @@ def TrainingAlgorithm(problem):
     if problem == 1:
         #dimensjoner og størrelser til x og y
         length = 4 #r = antall sifre i sekvensen
-        num_ints = 9 #M = eks heltall mellom 0 og 9, mulige siffre
+        m = 9 #M = eks heltall mellom 0 og 9, mulige siffre
 
         #henter treningsdata - kan ta inn argumenter her avhengig av 
-        data = get_train_test_sorting(length, num_ints, samples_per_batch = 250,n_batches_train = 10, n_batches_test = 1)
+        data = get_train_test_sorting(length, m, samples_per_batch = 250,n_batches_train = 10, n_batches_test = 1)
         n_max = length*2 - 1
 
     embed = EmbedPosition(n_max,m,d)
