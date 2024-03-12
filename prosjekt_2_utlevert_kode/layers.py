@@ -63,13 +63,13 @@ class Attention(Layer):
 
     def __init__(self,d,k,init_scale=0.1):
         #Initialize the parameter dictionary for weight with key "W_.."
-        self.params = {"W_k":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))},
-                       "W_q":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))},
-                       "W_o":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))},
-                       "W_v":{'w':np.random.randn(d,k)*init_scale,'d':None, 'M':np.zeros((d,k)), 'V':np.zeros((d,k))}}
+        self.params = {"W_k":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
+                       "W_q":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
+                       "W_o":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))},
+                       "W_v":{'w':np.random.randn(k,d)*init_scale,'d':None, 'M':np.zeros((k,d)), 'V':np.zeros((k,d))}}
         
         self.softmax = Softmax()
-        self.j = 0
+        self.j = 0 
         return
 
         
@@ -81,18 +81,18 @@ class Attention(Layer):
         i1,i2 = np.tril_indices(n,-1)
         D[i1,i2] -= np.inf
 
-        self.A = self.softmax.forward(np.einsum('bdi,dl,dk,cdj->bij', z, self.params['W_q']['w'],self.params['W_k']['w'],z, optimize = True) + D)
+        self.A = self.softmax.forward(np.einsum('bdi,kl,kd,cdj->bij', z, self.params['W_q']['w'],self.params['W_k']['w'],z, optimize = True) + D)
     
-        z_l = z + np.einsum('dk,dl,bdn,bij->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A, optimize = True)
+        z_l = z + np.einsum('dk,dl,bdn,bij->bdn', self.params['W_o']['w'], self.params['W_v']['w'], z, self.A, optimize=True)
         return z_l
 
 
     def backward(self,grad):
         b = grad.shape[0]
         
-        gOV = np.transpose(self.params['W_v']['w']) @ self.params['W_o']['w'] @ grad
-        g_s = Softmax.backward(np.transpose(self.z) * gOV)
-        dLdz = grad + gOV@np.transpose(self.A) + np.transpose(self.params['W_k']['w'])@self.params['W_q']['w']@self.z@g_s
+        gOV = np.einsum('kd,kd,bdn->bdn', self.params['W_v']['w'], self.params['W_o']['w'], grad, optimize = True)
+        g_s = self.softmax.backward(np.transpose(self.z) * gOV)
+        dLdz = grad + np.einsum('bdn,nn->bnn',gOV,np.transpose(self.A), optimize=True) + np.einsum(self.params['W_k']['w']),self.params['W_q']['w'],self.z,g_s, optimize=True)
 
         #Compute gradient (average over B batches) of loss wrt weight w: #Gjøre til 2D array i einsum
         self.params['W_o']['d'] = ((self.params['W_v']['w']) @ self.z @ self.A @ np.transpose(grad))/b
