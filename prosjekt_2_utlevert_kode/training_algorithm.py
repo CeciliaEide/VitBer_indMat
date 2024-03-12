@@ -1,5 +1,5 @@
 
-def TrainingAlgorithmAdding(problem):
+def TrainingAlgorithm(problem):
 
     import numpy as np
     from data_generators import get_train_test_addition, get_train_test_sorting
