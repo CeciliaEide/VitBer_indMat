@@ -135,8 +135,10 @@ class Softmax(Layer):
         eps = 10**-8 #legges til for å unngå divisjon med null
         S = self.P/(np.multiply(self.Q,self.Q)+eps)
         
-        dLdz = np.multiply(grad, self.z_l) - np.multiply((np.multiply(grad,S)).sum(axis=1), self.P) #Se videre på
-        return dLdz
+        step1 = np.multiply(grad, self.z_l) #grad og zl har forskjellige dimensjoner
+        step2 = np.multiply(np.sum(np.multiply(grad,S),axis=1,keepdims=True),  self.P)
+        #dLdz = np.multiply(grad, self.z_l) - np.multiply((np.multiply(grad,S)).sum(axis=1), self.P) #Se videre på
+        return step1-step2
 
 
 
@@ -150,6 +152,8 @@ class CrossEntropy(Layer):
         
 
     def forward(self,Z,y):
+        self.Z = Z
+        self.y = y
         self.n = Z.shape[-1]
         m = Z.shape[-2]
         r = y.shape[1]
@@ -168,7 +172,14 @@ class CrossEntropy(Layer):
 
     def backward(self):
         eps = 10**-8
-        dLdY = (1/self.n)*(np.multiply(self.Y,self.Y_hat+eps)) #Indekser og n
+        #legge til null
+        padded_Y = np.zeros_like(self.Z)
+        padded_Y[:,:,-self.y.shape[-1]:] = self.Y
+
+        #få Y tilbake i samme dimensjoner som Z
+
+
+        dLdY = (1/self.n)*(np.multiply(padded_Y,self.Z+eps)) #Indekser og n
         return dLdY
 
 
