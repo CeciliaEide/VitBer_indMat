@@ -1,9 +1,8 @@
-#evt. lage en felles med å endre hva man henter av treningsdata med en if-løkke
 
 def TrainingAlgorithmAdding(problem):
 
     import numpy as np
-    from data_generators import get_train_test_addition
+    from data_generators import get_train_test_addition, get_train_test_sorting
     from utils import onehot
     from layers import LinearLayer,EmbedPosition,Attention,Softmax,CrossEntropy,FeedForward
     from neural_network import NeuralNetwork
@@ -31,12 +30,13 @@ def TrainingAlgorithmAdding(problem):
 
         #henter treningsdata - kan ta inn argumenter her avhengig av 
         data = get_train_test_sorting(length, num_ints, samples_per_batch = 250,n_batches_train = 10)
+        n_max = length
 
     x = data['x_train'][0]
     X = onehot(x,m)
     y = data['y_train'][0]
 
-    embed = EmbedPosition(n_max,m,d) #hva blir n_max for sorting? lik r?
+    embed = EmbedPosition(n_max,m,d)
     att1 = Attention(d,k)
     ff1 = FeedForward(d,p)
     un_embed = LinearLayer(d,m)
