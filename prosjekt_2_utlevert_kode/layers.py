@@ -54,7 +54,7 @@ class Layer:
             M_j_hat = (1/(1-(b_1)**self.j))*M_j
             V_j_hat = (1/(1-(b_2)**self.j))*V_j
 
-            self.params[param]['w'] -= alpha(np.multiply(M_j_hat,(np.sqrt(V_j_hat)+eps)))
+            self.params[param]['w'] -= alpha*(np.multiply(M_j_hat,(np.sqrt(V_j_hat)+eps)))
 
 
 
