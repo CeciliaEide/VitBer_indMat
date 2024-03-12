@@ -1,7 +1,6 @@
 import numpy as np
 
 
-
 def get_xy_sort(length,num_ints=3):
     """
     Returns a pair of input and output for a sorting problem
@@ -19,7 +18,7 @@ def get_xy_sort(length,num_ints=3):
     then we get
 
     x = cat(seq,sol[:-1]) =[0,4,2,3,3 ,0,2,3,3] 
-    y = sol = [0,2,3,3,4]
+    y = cat(seq[1:],sol) = [4,2,3,3 ,2,3,3,4]
 
 
     This is based on the code from the minGPT project by Karpathy et al.
@@ -31,10 +30,9 @@ def get_xy_sort(length,num_ints=3):
     sol = np.sort(seq)
     cat = np.concatenate((seq, sol), axis=0)
     x = cat[:-1]
-    y = sol
+    y = cat[1:]
 
     return x,y
-
 
 
 def get_train_test_sorting(length, num_ints, samples_per_batch,n_batches_train, n_batches_test):
@@ -44,7 +42,7 @@ def get_train_test_sorting(length, num_ints, samples_per_batch,n_batches_train, 
 
     Returns a dictionary data with keys 'x_train', 'y_train', 'x_test', 'y_test' with the following shapes:
         - x_train: (n_batches_train,samples_per_batch, 2*length-1)
-        - y_train: (n_batches_train,samples_per_batch, length)
+        - y_train: (n_batches_train,samples_per_batch, 2*length-1)
         - x_test: (n_batches_test,samples_per_batch, length)
         - y_test: (n_batches_test,samples_per_batch, length)
     
@@ -52,9 +50,9 @@ def get_train_test_sorting(length, num_ints, samples_per_batch,n_batches_train, 
 
 
     x_train = np.zeros((n_batches_train,samples_per_batch, 2*length-1))
-    y_train = np.zeros((n_batches_train,samples_per_batch, length))
+    y_train = np.zeros_like(x_train)
     x_test = np.zeros((n_batches_test,samples_per_batch, 2*length-1))
-    y_test = np.zeros((n_batches_test,samples_per_batch, length))
+    y_test = np.zeros_like(x_test)
 
 
     for j in range(samples_per_batch):
@@ -69,7 +67,9 @@ def get_train_test_sorting(length, num_ints, samples_per_batch,n_batches_train, 
 
     #we only select the unsorted seq from x_test
     data['x_test'] = x_test[:,:,:length]
-    data['y_test'] = y_test
+
+    #and we select the sorted seq from y_test
+    data['y_test'] = y_test[:,:,length-1:]
     return data
 
 
@@ -84,7 +84,7 @@ def get_train_test_addition(n_digit,samples_per_batch = 1000,n_batches_train = 3
 
     Returns a dictionary data with keys 'x_train', 'y_train', 'x_test', 'y_test' with the following shapes:
             - x_train: (n_batches_train,samples_per_batch,n_digit*3)
-            - y_train: (n_batches_train,samples_per_batch,n_digit+1)
+            - y_train: (n_batches_train,samples_per_batch,n_digit*3)
             - x_test: (n_batches_test,samples_per_batch,n_digit*2)
             - y_test: (n_batches_test,samples_per_batch,n_digit+1)
 
@@ -97,7 +97,7 @@ def get_train_test_addition(n_digit,samples_per_batch = 1000,n_batches_train = 3
     then we get
 
     x = cat(a,b,c_reversed[:-1]) = [3,4, 4,1, 5,7]
-    y = c_reversed =  [5,7,0]
+    y = cat(a[1:],b,c_reversed) =  [4, 4,1, 5,7,0]
 
 
     This is based on the code from the minGPT project by Karpathy et al.
@@ -129,7 +129,7 @@ def get_train_test_addition(n_digit,samples_per_batch = 1000,n_batches_train = 3
         dix = [int(s) for s in render]
 
         x = dix[:-1]
-        y = [int(s) for s in cstr]
+        y = dix[1:]
         return x,y
     
     x_train = []
@@ -150,9 +150,9 @@ def get_train_test_addition(n_digit,samples_per_batch = 1000,n_batches_train = 3
         y_test.append(y)
 
     x_train = np.reshape(np.stack(x_train),(n_batches_train,samples_per_batch,n_digit*3))
-    y_train = np.reshape(np.stack(y_train),(n_batches_train,samples_per_batch,n_digit + 1))
+    y_train = np.reshape(np.stack(y_train),(n_batches_train,samples_per_batch,n_digit*3))
     x_test = np.reshape(np.stack(x_test),(n_batches_test,samples_per_batch,n_digit*3))
-    y_test = np.reshape(np.stack(y_test),(n_batches_test,samples_per_batch,n_digit + 1))
+    y_test = np.reshape(np.stack(y_test),(n_batches_test,samples_per_batch,n_digit*3))
 
 
     data = {}
@@ -163,8 +163,9 @@ def get_train_test_addition(n_digit,samples_per_batch = 1000,n_batches_train = 3
     #we only select a and b from x_test
     data['x_test'] = x_test[:,:,:n_digit*2]
     #and we only select c from y_test (and reverse it)
-    data['y_test'] = y_test[:,:,::-1]
+    data['y_test'] = y_test[:,:,n_digit*2-1:][:,:,::-1]
     return data
+
 
 
 
