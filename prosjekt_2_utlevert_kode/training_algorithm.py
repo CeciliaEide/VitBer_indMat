@@ -75,7 +75,7 @@ def TrainingAlgorithm(problem=0, L=1, n_iters=100, step='adam'):
                 nn.step_gd(step_size)
         mean_loss = np.mean(losses)
         mean_losses[j] = mean_loss
-        print("Iterasjon ", str(j), " L = ",mean_loss, "") #Kan fjernes senere, bruker bare mean_losses
+        #print("Iterasjon ", str(j), " L = ",mean_loss, "") #Kan fjernes senere, bruker bare mean_losses
 
     return nn, mean_losses
 
