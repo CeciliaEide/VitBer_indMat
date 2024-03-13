@@ -154,7 +154,7 @@ class CrossEntropy(Layer):
 
         
     def forward(self,Z,y):
-        b = Z.shape[0]
+        b, m, self.n = Z.shape
         self.Z = Z
         self.y = y
         self.n = Z.shape[-1]
