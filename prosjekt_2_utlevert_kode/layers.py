@@ -154,11 +154,10 @@ class CrossEntropy(Layer):
 
         
     def forward(self,Z,y):
-        b = Z.shape[0]
+        b, m, self.n = Z.shape
         self.Z = Z
         self.y = y
         self.n = Z.shape[-1]
-        m = Z.shape[-2]
         r = y.shape[1]
 
         self.Y = onehot(y,m) 
@@ -167,7 +166,7 @@ class CrossEntropy(Layer):
         p = np.sum(np.multiply(self.Y_hat,self.Y),axis=1)
         q = -np.log(p) 
 
-        L = (1/(self.n*b))*(np.sum(q))
+        L = np.mean(q)
 
         return L
 
