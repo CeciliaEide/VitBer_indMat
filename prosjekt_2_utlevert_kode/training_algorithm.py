@@ -55,7 +55,7 @@ def TrainingAlgorithm(problem=0, L=1, n_iters=100, step='adam'):
     #n_iters = 100
     step_size = 0.01
 
-    #treningsløkke tilsvarende algoritme 4 (med gradient descent)
+    #treningsløkke tilsvarende algoritme 4 
     mean_losses = np.zeros(n_iters)
     for j in range(n_iters):
         losses = []
