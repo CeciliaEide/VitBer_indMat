@@ -1,6 +1,6 @@
 import numpy as np
 
-def TrainingAlgorithm(problem):
+def TrainingAlgorithm(problem=0, L=1, n_iters=100, step='adam'):
 
     import numpy as np
     from data_generators import get_train_test_addition, get_train_test_sorting
@@ -36,10 +36,15 @@ def TrainingAlgorithm(problem):
     embed = EmbedPosition(n_max,m,d)
     att1 = Attention(d,k)
     ff1 = FeedForward(d,p)
+    if L == 2: #Kjør to ekstra lag om L=2, primært for enkel debugging (hva skjer når antall lag øker?)
+        att2 = Attention(d,k)
+        ff2 = FeedForward(d,k)
     un_embed = LinearLayer(d,m)
     softmax = Softmax()
     loss = CrossEntropy()
 
+    if L == 2:
+        layers = [embed,att1,ff1, att2, ff2, un_embed,softmax] #legg til ekstra lag om L=2
     layers = [embed,att1,ff1,un_embed,softmax]
     nn = NeuralNetwork(layers)
 
@@ -47,7 +52,7 @@ def TrainingAlgorithm(problem):
     ys = data['y_train']
 
     n_batches = xs.shape[0]
-    n_iters = 100
+    #n_iters = 100
     step_size = 0.01
 
     #treningsløkke tilsvarende algoritme 4 (med gradient descent)
@@ -64,7 +69,10 @@ def TrainingAlgorithm(problem):
             losses.append(loss.forward(Z,y))
             dLdZ = loss.backward()
             nn.backward(dLdZ)
-            nn.step_adam(step_size)
+            if step == 'adam':
+                nn.step_adam(step_size)
+            if step == 'gd':
+                nn.step_gd(step_size)
         mean_loss = np.mean(losses)
         mean_losses[j] = mean_loss
         print("Iterasjon ", str(j), " L = ",mean_loss, "") #Kan fjernes senere, bruker bare mean_losses
