@@ -102,7 +102,7 @@ def prosentSortetRight(nn, length, antall_forsok):
 
 
 def prosentAddedRight(nn, antall_forsok):
-    from data_generators import get_xy_sort #Skal kanskje bare gjøre for sort
+    from data_generators import get_xy_sort 
     from utils import onehot
     
     length = 4 #Summere to to-sifrede tall
